@@ -3588,10 +3588,12 @@ os_file_create_func(
 	}
 #endif /* O_SYNC */
 printf("name %s | type %d | srv %d\n",name,type,srv_unix_file_flush_method);
-	if (type != OS_LOG_FILE && type != OS_DATA_TEMP_FILE) 
-	
-		create_flag |= 0x40000000; //cgmin MMAPREAD
-
+//	if (type != OS_LOG_FILE && type != OS_DATA_TEMP_FILE) 
+	if (type == OS_DATA_FILE)	
+	{
+		printf("flag\n");	
+		create_flag |= 040000000; //cgmin MMAPREAD
+	}
 	bool		retry;
 
 	do {

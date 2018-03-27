@@ -22,5 +22,5 @@ Description: MySQL client library
 Version: 20.3.8
 Cflags: -I${includedir} 
 Libs: -L${libdir} -lmysqlclient
-Libs.private:  -lpthread -lm -lrt -latomic -ldl
+Libs.private:  -lpthread -lm -lrt -ldl
 Requires.private: 
