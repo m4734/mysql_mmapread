@@ -1753,7 +1753,7 @@ buf_pool_init_instance(
 		buf_pool->chunks =
 			reinterpret_cast<buf_chunk_t*>(memalign(4096,
 						buf_pool->n_chunks * sizeof(*chunk)));
-		memset(buf_pool->chunks,0,buf_pool->n_chunks * sizeof(*chunk)); //cgmin
+//		memset(buf_pool->chunks,0,buf_pool->n_chunks * sizeof(*chunk)); //cgmin
 
 
 		buf_pool->chunks_old = NULL;

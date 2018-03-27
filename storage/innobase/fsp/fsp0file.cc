@@ -36,6 +36,9 @@ Created 2013-7-26 by Kevin Lewis
 #include "my_sys.h"
 #endif /* UNIV_HOTBACKUP */
 
+//cgmin
+#include <malloc.h>
+
 /** Initialize the name, size and order of this datafile
 @param[in]	name	tablespace name, will be copied
 @param[in]	flags	tablespace flags */
@@ -313,9 +316,11 @@ Datafile::read_first_page(bool read_only_mode)
 			return(err);
 		}
 	}
+//cgmin
+//	m_first_page_buf = static_cast<byte*>(
+//		ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
 
-	m_first_page_buf = static_cast<byte*>(
-		ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
+m_first_page_buf = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE_MAX));
 
 	/* Align the memory for a possible read from a raw device */
 
@@ -750,8 +755,11 @@ Datafile::find_space_id()
 			<< "Page size:" << page_size
 			<< ". Pages to analyze:" << page_count;
 
-		byte*	buf = static_cast<byte*>(
-			ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
+//cgmin		
+//		byte*	buf = static_cast<byte*>(
+//			ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
+
+		byte* buf = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE_MAX));
 
 		byte*	page = static_cast<byte*>(
 			ut_align(buf, UNIV_SECTOR_SIZE));
