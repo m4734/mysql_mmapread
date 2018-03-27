@@ -3587,9 +3587,9 @@ os_file_create_func(
 		create_flag |= O_SYNC;
 	}
 #endif /* O_SYNC */
-
-	if ((type != OS_LOG_FILE && type != OS_DATA_TEMP_FILE) && 
-			(srv_unix_file_flush_method == SRV_UNIX_O_DIRECT || srv_unix_file_flush_method == SRV_UNIX_O_DIRECT_NO_FSYNC))
+printf("name %s | type %d | srv %d\n",name,type,srv_unix_file_flush_method);
+	if (type != OS_LOG_FILE && type != OS_DATA_TEMP_FILE) 
+	
 		create_flag |= 0x40000000; //cgmin MMAPREAD
 
 	bool		retry;
