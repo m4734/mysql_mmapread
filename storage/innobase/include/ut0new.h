@@ -137,6 +137,9 @@ InnoDB:
 #include "os0thread.h" /* os_thread_sleep() */
 #include "ut0ut.h" /* ut_strcmp_functor, ut_basename_noext() */
 
+//cgmin h
+#include <malloc.h>
+
 #define	OUT_OF_MEMORY_MSG \
 	"Check if you should increase the swap file or ulimits of your" \
 	" operating system. Note that on most 32-bit computers the process" \
@@ -318,7 +321,8 @@ public:
 		const_pointer	hint = NULL,
 		const char*	file = NULL,
 		bool		set_to_zero = false,
-		bool		throw_on_error = true)
+		bool		throw_on_error = true//) cgmin
+	, bool mmapread = false)
 	{
 		if (n_elements == 0) {
 			return(NULL);
@@ -345,7 +349,11 @@ public:
 
 		for (size_t retries = 1; ; retries++) {
 
-			if (set_to_zero) {
+			//cgmin
+			if (mmapread) {
+				ptr = memalign(4096, total_bytes);
+			}
+			else if (set_to_zero) {
 				ptr = calloc(1, total_bytes);
 			} else {
 				ptr = malloc(total_bytes);
@@ -892,6 +900,12 @@ ut_delete_array(
 #define ut_free(ptr)	ut_allocator<byte>(PSI_NOT_INSTRUMENTED).deallocate( \
 	reinterpret_cast<byte*>(ptr))
 
+//cgmin
+#define ut_mralloc_nokey(n_bytes)	static_cast<void*>( \
+	ut_allocator<byte>(PSI_NOT_INSTRUMENTED).allocate( \
+		n_bytes, NULL, __FILE__, true, false,true))
+
+
 #else /* UNIV_PFS_MEMORY */
 
 /* Fallbacks when memory tracing is disabled at compile time. */
@@ -921,6 +935,9 @@ ut_delete_array(
 #define ut_realloc(ptr, n_bytes)	::realloc(ptr, n_bytes)
 
 #define ut_free(ptr)			::free(ptr)
+
+//cgmin
+#define ut_mralloc_nokey(n_bytes)	::memalign(4096,n_bytes)
 
 #endif /* UNIV_PFS_MEMORY */
 

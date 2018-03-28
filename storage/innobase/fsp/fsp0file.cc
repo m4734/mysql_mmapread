@@ -317,10 +317,10 @@ Datafile::read_first_page(bool read_only_mode)
 		}
 	}
 //cgmin
-//	m_first_page_buf = static_cast<byte*>(
-//		ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
+	m_first_page_buf = static_cast<byte*>(
+		ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
 
-m_first_page_buf = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE_MAX));
+//m_first_page_buf = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE_MAX));
 
 	/* Align the memory for a possible read from a raw device */
 
@@ -756,10 +756,10 @@ Datafile::find_space_id()
 			<< ". Pages to analyze:" << page_count;
 
 //cgmin		
-//		byte*	buf = static_cast<byte*>(
-//			ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
+		byte*	buf = static_cast<byte*>(
+			ut_malloc_nokey(2 * UNIV_PAGE_SIZE_MAX));
 
-		byte* buf = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE_MAX));
+//		byte* buf = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE_MAX));
 
 		byte*	page = static_cast<byte*>(
 			ut_align(buf, UNIV_SECTOR_SIZE));

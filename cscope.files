@@ -842,11 +842,7 @@
 ./libmysqld/lib_sql.cc
 ./libmysqld/libmysqld.c
 ./libmysqld/resource.h
-./libmysqld/sql_yacc.cc
 ./libmysqld/lex_hash.h
-./libmysqld/sql_hints.yy.cc
-./libmysqld/sql_hints.yy.h
-./libmysqld/sql_yacc.h
 ./libmysqld/lex_token.h
 ./libservices/locking_service.c
 ./libservices/my_plugin_log_service.c
@@ -2350,11 +2346,7 @@
 ./sql/xa.cc
 ./sql/xa_aux.h
 ./sql/sql_builtin.cc
-./sql/sql_hints.yy.cc
-./sql/sql_hints.yy.h
 ./sql/lex_hash.h
-./sql/sql_yacc.cc
-./sql/sql_yacc.h
 ./sql/lex_token.h
 ./storage/archive/archive_reader.c
 ./storage/archive/archive_test.c
@@ -2718,7 +2710,6 @@
 ./storage/innobase/page/page0cur.cc
 ./storage/innobase/page/page0page.cc
 ./storage/innobase/page/page0zip.cc
-./storage/innobase/pars/lexyy.cc
 ./storage/innobase/pars/pars0grm.cc
 ./storage/innobase/pars/pars0opt.cc
 ./storage/innobase/pars/pars0pars.cc
@@ -4240,7 +4231,6 @@
 ./boost_1_59_0/tools/build/src/engine/variable.c
 ./boost_1_59_0/tools/build/src/engine/variable.h
 ./boost_1_59_0/tools/build/src/engine/w32_getreg.c
-./boost_1_59_0/tools/build/src/engine/yyacc.c
 ./boost_1_59_0/tools/build/test/prebuilt/ext/debug/a.h
 ./boost_1_59_0/tools/build/test/prebuilt/ext/release/a.h
 ./boost_1_59_0/tools/build/test/qt4/mock.h

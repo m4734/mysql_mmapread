@@ -1745,14 +1745,20 @@ buf_pool_init_instance(
 			= buf_pool_size / srv_buf_pool_chunk_unit;
 		chunk_size = srv_buf_pool_chunk_unit;
 
-		/*
+/*
 		buf_pool->chunks =
 			reinterpret_cast<buf_chunk_t*>(ut_zalloc_nokey(
-				buf_pool->n_chunks * sizeof(*chunk)));
-				*/
+			buf_pool->n_chunks * sizeof(*chunk)));
+*/
+
 		buf_pool->chunks =
-			reinterpret_cast<buf_chunk_t*>(memalign(4096,
-						buf_pool->n_chunks * sizeof(*chunk)));
+			reinterpret_cast<buf_chunk_t*>(ut_mralloc_nokey(
+			buf_pool->n_chunks * sizeof(*chunk)));
+
+//		buf_pool->chunks =			reinterpret_cast<buf_chunk_t*>(malloc(buf_pool->n_chunks * sizeof(*chunk)));
+
+
+//		buf_pool->chunks =			reinterpret_cast<buf_chunk_t*>(memalign(4096,						buf_pool->n_chunks * sizeof(*chunk)));
 //		memset(buf_pool->chunks,0,buf_pool->n_chunks * sizeof(*chunk)); //cgmin
 
 

@@ -762,8 +762,8 @@ retry:
 		/* Read the first page of the tablespace */
 
 //cgmin wt		
-//		buf2 = static_cast<byte*>(ut_malloc_nokey(2 * UNIV_PAGE_SIZE));
-buf2 = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE));
+		buf2 = static_cast<byte*>(ut_malloc_nokey(2 * UNIV_PAGE_SIZE));
+//buf2 = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE));
 
 
 		/* Align the memory for file i/o if we might have O_DIRECT
@@ -1926,8 +1926,8 @@ fil_write_flushed_lsn(
 	byte*	buf;
 	dberr_t	err;
 //cgmin
-//	buf1 = static_cast<byte*>(ut_malloc_nokey(2 * UNIV_PAGE_SIZE));
-	buf1 = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE));	
+	buf1 = static_cast<byte*>(ut_malloc_nokey(2 * UNIV_PAGE_SIZE));
+//	buf1 = static_cast<byte*>(memalign(4096,2*UNIV_PAGE_SIZE));	
 	buf = static_cast<byte*>(ut_align(buf1, UNIV_PAGE_SIZE));
 
 	const page_id_t	page_id(TRX_SYS_SPACE, 0);
@@ -5184,8 +5184,8 @@ fil_extend_tablespaces_to_stored_len(void)
 	dberr_t		error;
 	bool		success;
 //cgmin
-//	buf = (byte*)ut_malloc_nokey(UNIV_PAGE_SIZE);
-	buf = (byte*)memalign(4096,UNIV_PAGE_SIZE);	
+	buf = (byte*)ut_malloc_nokey(UNIV_PAGE_SIZE);
+//	buf = (byte*)memalign(4096,UNIV_PAGE_SIZE);	
 
 	mutex_enter(&fil_system->mutex);
 
@@ -6540,8 +6540,8 @@ fil_tablespace_iterate(
 	page is to ensure alignement. */
 
 	//cgmin
-//	void*	page_ptr = ut_malloc_nokey(3 * UNIV_PAGE_SIZE);
-	void*	page_ptr = memalign(4096,3*UNIV_PAGE_SIZE);	
+	void*	page_ptr = ut_malloc_nokey(3 * UNIV_PAGE_SIZE);
+//	void*	page_ptr = memalign(4096,3*UNIV_PAGE_SIZE);	
 	byte*	page = static_cast<byte*>(ut_align(page_ptr, UNIV_PAGE_SIZE));
 
 	fil_buf_block_init(block, page);
