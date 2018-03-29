@@ -1505,13 +1505,13 @@ buf_chunk_init(
 
 	DBUG_EXECUTE_IF("ib_buf_chunk_init_fails", return(NULL););
 
+
+	//cgmin
 	chunk->mem = buf_pool->allocator.allocate_large(mem_size,
 							&chunk->mem_pfx);
+	memset(chunk->mem,0,mem_size);
 
-	if (UNIV_UNLIKELY(chunk->mem == NULL)) {
-
-		return(NULL);
-	}
+//	chunk->mem = (unsigned char*)memalign(4096,mem_size);							
 
 #ifdef HAVE_LIBNUMA
 	if (srv_numa_interleave) {
@@ -1745,15 +1745,21 @@ buf_pool_init_instance(
 			= buf_pool_size / srv_buf_pool_chunk_unit;
 		chunk_size = srv_buf_pool_chunk_unit;
 
-/*
+
 		buf_pool->chunks =
 			reinterpret_cast<buf_chunk_t*>(ut_zalloc_nokey(
 			buf_pool->n_chunks * sizeof(*chunk)));
-*/
 
+//		memset(buf_pool->chunk,0,buf_pool->n_chunks * sizeof(*chunk));
+
+
+/*
 		buf_pool->chunks =
-			reinterpret_cast<buf_chunk_t*>(ut_mralloc_nokey(
+			reinterpret_cast<buf_chunk_t*>(ut_mrzalloc_nokey(
 			buf_pool->n_chunks * sizeof(*chunk)));
+*/
+//	byte*	log_buf = static_cast<byte*>(ut_align(buf, UNIV_PAGE_SIZE));
+
 
 //		buf_pool->chunks =			reinterpret_cast<buf_chunk_t*>(malloc(buf_pool->n_chunks * sizeof(*chunk)));
 

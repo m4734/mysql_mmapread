@@ -604,17 +604,24 @@ public:
 	pointer
 	allocate_large(
 		size_type	n_elements,
-		ut_new_pfx_t*	pfx)
+		ut_new_pfx_t*	pfx) //cgmin
+//	, bool mmapread = false)
 	{
 		if (n_elements == 0 || n_elements > max_size()) {
 			return(NULL);
 		}
 
 		ulint	n_bytes = n_elements * sizeof(T);
-
 		pointer	ptr = reinterpret_cast<pointer>(
 			os_mem_alloc_large(&n_bytes));
-
+		//cgmin
+//		pointer ptr;
+		/*
+		if (mmapread)
+			ptr = reinterpret_cast<pointer>(memalign(4096,n_bytes));
+		else		
+			ptr = reinterpret_cast<pointer>(os_mem_alloc_large(&n_bytes));
+*/
 #ifdef UNIV_PFS_MEMORY
 		if (ptr != NULL) {
 			allocate_trace(n_bytes, NULL, pfx);
@@ -901,9 +908,12 @@ ut_delete_array(
 	reinterpret_cast<byte*>(ptr))
 
 //cgmin
-#define ut_mralloc_nokey(n_bytes)	static_cast<void*>( \
+#define ut_mrzalloc_nokey(n_bytes)	static_cast<void*>( \
 	ut_allocator<byte>(PSI_NOT_INSTRUMENTED).allocate( \
 		n_bytes, NULL, __FILE__, true, false,true))
+#define ut_mrmalloc_nokey(n_bytes)	static_cast<void*>( \
+	ut_allocator<byte>(PSI_NOT_INSTRUMENTED).allocate( \
+		n_bytes, NULL, __FILE__, false, false,true))
 
 
 #else /* UNIV_PFS_MEMORY */
@@ -937,7 +947,8 @@ ut_delete_array(
 #define ut_free(ptr)			::free(ptr)
 
 //cgmin
-#define ut_mralloc_nokey(n_bytes)	::memalign(4096,n_bytes)
+#define ut_mrmalloc_nokey(n_bytes)	::memalign(4096,n_bytes)
+#define ut_mrzalloc_nokey(n_bytes)	::memalign(4096,n_bytes) // error? memset
 
 #endif /* UNIV_PFS_MEMORY */
 
