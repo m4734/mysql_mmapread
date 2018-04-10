@@ -18565,7 +18565,6 @@ innodb_buffer_pool_evict_uncompressed(void)
 			      == BUF_BLOCK_FILE_PAGE);
 			ut_ad(block->in_unzip_LRU_list);
 			ut_ad(block->page.in_LRU_list);
-
 			if (!buf_LRU_free_page(&block->page, false)) {
 				all_evicted = false;
 			}

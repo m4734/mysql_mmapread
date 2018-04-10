@@ -6570,12 +6570,10 @@ btr_blob_free(
 	    == BUF_BLOCK_FILE_PAGE
 	    && block->page.id.space() == space
 	    && block->page.id.page_no() == page_no) {
-
 		if (!buf_LRU_free_page(&block->page, all)
 		    && all && block->page.zip.data) {
 			/* Attempt to deallocate the uncompressed page
 			if the whole block cannot be deallocted. */
-
 			buf_LRU_free_page(&block->page, false);
 		}
 	}

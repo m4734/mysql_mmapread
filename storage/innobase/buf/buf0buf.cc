@@ -4504,7 +4504,6 @@ got_block:
 		not block->mutex or hash_lock. Blocks cannot be
 		relocated or enter or exit the buf_pool while we
 		are holding the buf_pool->mutex. */
-
 		if (buf_LRU_free_page(&fix_block->page, true)) {
 
 			buf_pool_mutex_exit(buf_pool);

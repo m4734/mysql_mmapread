@@ -449,8 +449,24 @@ btr_pcur_move_to_next_page(
 
 	next_page = buf_block_get_frame(next_block);
 #ifdef UNIV_BTR_DEBUG
+	printf("page_is_comp() %u\n",page_is_comp(page));
 	ut_a(page_is_comp(next_page) == page_is_comp(page));
-	ut_a(btr_page_get_prev(next_page, mtr)
+	printf("next_page_no %u\n",next_page_no);
+	printf("btr_page_get_prev %u btr_pcur_get_block(cursor)->page.id.page_no()%u\n",btr_page_get_prev(next_page,mtr),btr_pcur_get_block(cursor)->page.id.page_no());
+	printf("btr_page_no FIL_PAGE_OFFSET %u\n",(ulint)mach_read_from_4(next_page+FIL_PAGE_OFFSET));
+	printf("btr_page_get_next %u\n",btr_page_get_next(next_page,mtr));
+	printf("next_block page id page_no %u\n",next_block->page.id.page_no());
+
+	printf("ppp %p\n",next_page);
+if		(btr_page_get_prev(next_page, mtr) != btr_pcur_get_block(cursor)->page.id.page_no())
+{
+	memset(next_page+FIL_PAGE_OFFSET,0,4);
+	printf("e btr_page_get_prev %u\n",btr_page_get_prev(next_page,mtr));
+	printf("e btr_page_no FIL_PAGE_OFFSET %u\n",(ulint)mach_read_from_4(next_page+FIL_PAGE_OFFSET));
+	printf("e btr_page_get_next %u\n",btr_page_get_next(next_page,mtr));
+
+}
+ut_a(btr_page_get_prev(next_page, mtr)
 	     == btr_pcur_get_block(cursor)->page.id.page_no());
 #endif /* UNIV_BTR_DEBUG */
 

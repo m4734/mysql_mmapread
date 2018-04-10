@@ -1021,7 +1021,7 @@ buf_LRU_free_from_unzip_LRU_list(
 		ut_ad(buf_block_get_state(block) == BUF_BLOCK_FILE_PAGE);
 		ut_ad(block->in_unzip_LRU_list);
 		ut_ad(block->page.in_LRU_list);
-
+printf("c8\n");
 		freed = buf_LRU_free_page(&block->page, false);
 
 		block = prev_block;
@@ -1075,6 +1075,7 @@ buf_LRU_free_from_common_LRU_list(
 
 		if (buf_flush_ready_for_replace(bpage)) {
 			mutex_exit(mutex);
+			printf("c9\n");
 			freed = buf_LRU_free_page(bpage, true);
 		} else {
 			mutex_exit(mutex);
@@ -1875,7 +1876,7 @@ buf_LRU_free_page(
 
 	rw_lock_x_lock(hash_lock);
 	mutex_enter(block_mutex);
-
+printf("buf lru free page bpage id page no %u\n",bpage->id.page_no());//cgmin
 	if (!buf_page_can_relocate(bpage)) {
 
 		/* Do not free buffer fixed and I/O-fixed blocks. */
