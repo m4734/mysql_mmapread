@@ -3587,12 +3587,12 @@ os_file_create_func(
 		create_flag |= O_SYNC;
 	}
 #endif /* O_SYNC */
-printf("name %s | type %d | srv %d\n",name,type,srv_unix_file_flush_method);
+//printf("name %s | type %d | srv %d\n",name,type,srv_unix_file_flush_method);
 //	if (type != OS_LOG_FILE && type != OS_DATA_TEMP_FILE) 
 
 if (strcmp(name,"./ddd/ttt.ibd") == 0 && type == OS_DATA_FILE)// && false)	
 	{
-		printf("flag\n");	
+//		printf("flag\n");	
 		create_flag |= 040000000; //cgmin MMAPREAD
 	}
 
