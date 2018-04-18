@@ -569,7 +569,9 @@ buf_buddy_relocate(
 				   + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID);
 	offset	= mach_read_from_4((const byte*) src
 				   + FIL_PAGE_OFFSET);
-
+	if (offset == 0xffffffff) //cgmin
+		printf("cr1\n");
+printf("buf buddy relocate space %u offset %u\n",space,offset); //cgmin
 	/* Suppress Valgrind warnings about conditional jump
 	on uninitialized value. */
 	UNIV_MEM_VALID(&space, sizeof space);

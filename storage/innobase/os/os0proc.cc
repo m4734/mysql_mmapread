@@ -71,8 +71,7 @@ os_proc_get_number(void)
 @return allocated memory */
 void*
 os_mem_alloc_large(
-	ulint*	n)//cgmin
-//, bool mmapread = false)
+	ulint*	n)
 {
 	void*	ptr;
 	ulint	size;
@@ -88,12 +87,6 @@ os_mem_alloc_large(
 	ut_ad(ut_is_2pow(os_large_page_size));
 	size = ut_2pow_round(*n + (os_large_page_size - 1),
 			     os_large_page_size);
-	/*
-if (mmapread)
-	ptr = memalign(4096,size);
-else
-{
-*/
 	shmid = shmget(IPC_PRIVATE, (size_t) size, SHM_HUGETLB | SHM_R | SHM_W);
 	if (shmid < 0) {
 		ib::warn() << "Failed to allocate " << size

@@ -809,7 +809,8 @@ buf_page_is_corrupted(
 				read_buf + FIL_PAGE_SPACE_ID);
 			const ulint	page_no = mach_read_from_4(
 				read_buf + FIL_PAGE_OFFSET);
-
+if (page_no == 0xffffffff)//cgmin
+	printf("cr3\n");
 			ib::error() << "Page " << page_id_t(space_id, page_no)
 				<< " log sequence number " << page_lsn
 				<< " is in the future! Current system"
@@ -897,6 +898,8 @@ buf_page_is_corrupted(
 					read_buf + FIL_PAGE_SPACE_ID),
 				mach_read_from_4(
 					read_buf + FIL_PAGE_OFFSET));
+	if (mach_read_from_4(read_buf+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
+		printf("cr3\n");
 #endif /* UNIV_INNOCHECKSUM */
 
 	DBUG_EXECUTE_IF("buf_page_import_corrupt_failure", return(TRUE); );
@@ -1505,13 +1508,14 @@ buf_chunk_init(
 
 	DBUG_EXECUTE_IF("ib_buf_chunk_init_fails", return(NULL););
 
-
-	//cgmin
 	chunk->mem = buf_pool->allocator.allocate_large(mem_size,
 							&chunk->mem_pfx);
-	memset(chunk->mem,0,mem_size);
+	memset(chunk->mem,0,mem_size); //cgmin
 
-//	chunk->mem = (unsigned char*)memalign(4096,mem_size);							
+	if (UNIV_UNLIKELY(chunk->mem == NULL)) {
+
+		return(NULL);
+	}
 
 #ifdef HAVE_LIBNUMA
 	if (srv_numa_interleave) {
@@ -1750,23 +1754,7 @@ buf_pool_init_instance(
 			reinterpret_cast<buf_chunk_t*>(ut_zalloc_nokey(
 			buf_pool->n_chunks * sizeof(*chunk)));
 
-//		memset(buf_pool->chunk,0,buf_pool->n_chunks * sizeof(*chunk));
-
-
-/*
-		buf_pool->chunks =
-			reinterpret_cast<buf_chunk_t*>(ut_mrzalloc_nokey(
-			buf_pool->n_chunks * sizeof(*chunk)));
-*/
 //	byte*	log_buf = static_cast<byte*>(ut_align(buf, UNIV_PAGE_SIZE));
-
-
-//		buf_pool->chunks =			reinterpret_cast<buf_chunk_t*>(malloc(buf_pool->n_chunks * sizeof(*chunk)));
-
-
-//		buf_pool->chunks =			reinterpret_cast<buf_chunk_t*>(memalign(4096,						buf_pool->n_chunks * sizeof(*chunk)));
-//		memset(buf_pool->chunks,0,buf_pool->n_chunks * sizeof(*chunk)); //cgmin
-
 
 		buf_pool->chunks_old = NULL;
 
@@ -2045,7 +2033,7 @@ buf_page_realloc(
 
 	if (buf_page_can_relocate(&block->page)) {
 		mutex_enter(&new_block->mutex);
-
+printf("realloc happened\n"); //cgmin
 		memcpy(new_block->frame, block->frame, UNIV_PAGE_SIZE);
 		memcpy(&new_block->page, &block->page, sizeof block->page);
 
@@ -4440,6 +4428,12 @@ got_block:
 		/* Page checksum verification is already done when
 		the page is read from disk. Hence page checksum
 		verification is not necessary when decompressing the page. */
+		
+		if (mach_read_from_4(block->frame+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
+			printf("cx1\n");
+		if (mach_read_from_4(block->frame+FIL_PAGE_OFFSET) == 0xfefefefe) //cgmin
+			printf("cx2\n");
+		
 		{
 			bool	success = buf_zip_decompress(block, FALSE);
 			ut_a(success);
@@ -5711,7 +5705,9 @@ buf_page_io_complete(
 		read_page_no = mach_read_from_4(frame + FIL_PAGE_OFFSET);
 		read_space_id = mach_read_from_4(
 			frame + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID);
-
+		if (read_page_no == 0xffffffff) //cgmin
+			printf("cr5\n");
+//printf("read_page_no %d read_space)id %d\n",read_page_no,read_space_id); //cgmin
 		if (bpage->id.space() == TRX_SYS_SPACE
 		    && buf_dblwr_page_inside(bpage->id.page_no())) {
 

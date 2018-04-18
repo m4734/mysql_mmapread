@@ -356,6 +356,10 @@ page_create_low(
 		fil_page_set_type(page, FIL_PAGE_INDEX);
 	}
 
+//cgmin page init
+//memset(page + FIL_PAGE_OFFSET, 0xff, 4);
+//memset(page + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID, 0xff, 4);
+
 	memset(page + PAGE_HEADER, 0, PAGE_HEADER_PRIV_END);
 	page[PAGE_HEADER + PAGE_N_DIR_SLOTS + 1] = 2;
 	page[PAGE_HEADER + PAGE_DIRECTION + 1] = PAGE_NO_DIRECTION;

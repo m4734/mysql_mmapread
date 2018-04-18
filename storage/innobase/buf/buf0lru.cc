@@ -2133,9 +2133,12 @@ buf_LRU_block_free_non_file_page(
 	memset(block->frame, '\0', UNIV_PAGE_SIZE);
 #else
 	/* Wipe page_no and space_id */
-	//cgmin
-//	memset(block->frame + FIL_PAGE_OFFSET, 0xfe, 4);
-//	memset(block->frame + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID, 0xfe, 4);
+	//printf("free non file page happend\n"); //cgmin
+	
+	memset(block->frame + FIL_PAGE_OFFSET, 0xfe, 4);
+	memset(block->frame + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID, 0xfe, 4);
+
+//printf("read_page_no %u read_space_id %u\n",mach_read_from_4(block->frame+FIL_PAGE_OFFSET),mach_read_from_4(block->frame+FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID));
 #endif /* UNIV_DEBUG */
 	data = block->page.zip.data;
 
@@ -2347,12 +2350,19 @@ buf_LRU_block_remove_hashed(
 		return(false);
 
 	case BUF_BLOCK_FILE_PAGE:
+		//printf("remove hash happend\n"); //cgmin
+	
 		memset(((buf_block_t*) bpage)->frame
 		       + FIL_PAGE_OFFSET, 0xff, 4);
 		memset(((buf_block_t*) bpage)->frame
 		       + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID, 0xff, 4);
+		   
+//		printf("read_page_no %u read_space_id %u\n",mach_read_from_4(((buf_block_t*)bpage)->frame+FIL_PAGE_OFFSET),mach_read_from_4(((buf_block_t*)bpage)->frame+FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID));
+
 		UNIV_MEM_INVALID(((buf_block_t*) bpage)->frame,
 				 UNIV_PAGE_SIZE);
+//				printf("read_page_no %u read_space_id %u\n",mach_read_from_4(((buf_block_t*)bpage)->frame+FIL_PAGE_OFFSET),mach_read_from_4(((buf_block_t*)bpage)->frame+FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID));
+
 		buf_page_set_state(bpage, BUF_BLOCK_REMOVE_HASH);
 
 		/* Question: If we release bpage and hash mutex here
