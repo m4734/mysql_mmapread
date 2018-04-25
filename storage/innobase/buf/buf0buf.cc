@@ -1510,7 +1510,7 @@ buf_chunk_init(
 
 	chunk->mem = buf_pool->allocator.allocate_large(mem_size,
 							&chunk->mem_pfx);
-	memset(chunk->mem,0,mem_size); //cgmin
+	memset(chunk->mem,0,mem_size); //cgmin init frame we need it // why? // alloc now
 
 	if (UNIV_UNLIKELY(chunk->mem == NULL)) {
 
@@ -1574,7 +1574,6 @@ buf_chunk_init(
 
 		ut_d(block->page.in_free_list = TRUE);
 		ut_ad(buf_pool_from_block(block) == buf_pool);
-
 		block++;
 		frame += UNIV_PAGE_SIZE;
 	}
@@ -2021,6 +2020,7 @@ buf_page_realloc(
 	ut_ad(buf_block_get_state(block) == BUF_BLOCK_FILE_PAGE);
 
 	new_block = buf_LRU_get_free_only(buf_pool);
+
 
 	if (new_block == NULL) {
 		return(false); /* free_list was not enough */
@@ -4259,7 +4259,6 @@ loop:
 	rw_lock_s_unlock(hash_lock);
 
 got_block:
-
 	if (mode == BUF_GET_IF_IN_POOL || mode == BUF_PEEK_IF_IN_POOL) {
 
 		buf_page_t*	fix_page = &fix_block->page;
@@ -4428,11 +4427,6 @@ got_block:
 		/* Page checksum verification is already done when
 		the page is read from disk. Hence page checksum
 		verification is not necessary when decompressing the page. */
-		
-		if (mach_read_from_4(block->frame+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
-			printf("cx1\n");
-		if (mach_read_from_4(block->frame+FIL_PAGE_OFFSET) == 0xfefefefe) //cgmin
-			printf("cx2\n");
 		
 		{
 			bool	success = buf_zip_decompress(block, FALSE);
@@ -5164,6 +5158,8 @@ buf_page_init_for_read(
 		ut_ad(buf_pool_from_block(block) == buf_pool);
 	}
 
+//memset(block->frame+FIL_PAGE_OFFSET,0x12345678,16); not here
+//printf("%x\n",mach_read_from_4(block->frame+FIL_PAGE_OFFSET)); //cgmin here
 	buf_pool_mutex_enter(buf_pool);
 
 	hash_lock = buf_page_hash_lock_get(buf_pool, page_id);

@@ -14500,8 +14500,8 @@
 /usr/local/mysql/mysql-test/./Makefile
 /usr/local/mysql/mysql-test/./cmake_install.cmake
 /usr/local/mysql/mysql-test/./CTestTestfile.cmake
-/usr/local/mysql/mysql-test/./mysql-test-run
 /usr/local/mysql/mysql-test/./mtr
+/usr/local/mysql/mysql-test/./mysql-test-run
 /usr/local/mysql/./COPYING-test
 /usr/local/mysql/./README-test
 /usr/local/mysql/mysql-test/mtr

@@ -402,11 +402,6 @@ btr_page_alloc_for_ibuf(
 		page_id_t(dict_index_get_space(index), node_addr.page),
 		dict_table_page_size(index->table),
 		RW_X_LATCH, mtr);
-if (mach_read_from_4(new_block->frame+FIL_PAGE_OFFSET) == 0xffffffff)	//cgmin
-	printf("cg2\n");
-else
-	printf("%x\n",mach_read_from_4(new_block->frame+FIL_PAGE_OFFSET));
-printf("wt2\n");
 
 	new_page = buf_block_get_frame(new_block);
 	buf_block_dbg_add_level(new_block, SYNC_IBUF_TREE_NODE_NEW);
@@ -489,7 +484,7 @@ btr_page_alloc(
 					the page */
 {
 	buf_block_t*	new_block;
-
+printf("xkneln\n");
 	if (dict_index_is_ibuf(index)) {
 
 		return(btr_page_alloc_for_ibuf(index, mtr));
@@ -497,11 +492,6 @@ btr_page_alloc(
 
 	new_block = btr_page_alloc_low(
 		index, hint_page_no, file_direction, level, mtr, init_mtr);
-if (mach_read_from_4(new_block->frame+FIL_PAGE_OFFSET) == 0xffffffff)	//cgmin
-	printf("cg\n");
-else
-	printf("%x\n",mach_read_from_4(new_block->frame+FIL_PAGE_OFFSET));
-printf("wt0\n");
 	if (new_block) {
 		buf_block_dbg_add_level(new_block, SYNC_TREE_NODE_NEW);
 	}

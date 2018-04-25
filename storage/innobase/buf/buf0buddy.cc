@@ -412,7 +412,6 @@ buf_buddy_block_free(
 	buf_page_mutex_enter(block);
 	buf_LRU_block_free_non_file_page(block);
 	buf_page_mutex_exit(block);
-
 	ut_ad(buf_pool->buddy_n_frames > 0);
 	ut_d(buf_pool->buddy_n_frames--);
 }
