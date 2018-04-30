@@ -484,7 +484,6 @@ btr_page_alloc(
 					the page */
 {
 	buf_block_t*	new_block;
-printf("xkneln\n");
 	if (dict_index_is_ibuf(index)) {
 
 		return(btr_page_alloc_for_ibuf(index, mtr));
