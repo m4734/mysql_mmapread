@@ -235,6 +235,8 @@ static THD* init_new_thd(Channel_info *channel_info)
 
 extern "C" void *handle_connection(void *arg)
 {
+  int ret, cpu;
+  cpu_set_t set;
   Global_THD_manager *thd_manager= Global_THD_manager::get_instance();
   Connection_handler_manager *handler_manager=
     Connection_handler_manager::get_instance();
@@ -252,6 +254,14 @@ extern "C" void *handle_connection(void *arg)
     return NULL;
   }
 
+  cpu = sched_getcpu();
+  CPU_ZERO(&set);
+  CPU_SET(cpu, &set);
+  ret = sched_setaffinity(0, sizeof(cpu_set_t), &set);
+  if (ret)
+	  printf("%s: setaffinity failed core %d\n", __func__, cpu);
+  else
+	  printf("%s: setaffinity to core %d\n", __func__, cpu);
   for (;;)
   {
     THD *thd= init_new_thd(channel_info);
