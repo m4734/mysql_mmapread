@@ -191,10 +191,11 @@ buf_read_page_low(
 	IORequest	request(type | IORequest::READ);
 
 //printf("%x\n",mach_read_from_4((byte*)dst+FIL_PAGE_OFFSET)); //cgmin here2
+#if 0
 	*err = fil_io(
 		request, true, page_id, page_size, 0, page_size.physical(),
 		dst, bpage);
-#if 0
+#else
 	*err = fil_io(
 		request, sync, page_id, page_size, 0, page_size.physical(),
 		dst, bpage);
