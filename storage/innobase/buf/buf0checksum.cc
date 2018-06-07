@@ -59,8 +59,8 @@ mach_read_from_40(
 {
 	ut_ad(b);
 	
-		if ((b[0] == 0xff && b[1] == 0xff && b[2] == 0xff && b[3] == 0xff) || (b[0] == 0xfe && b[1] == 0xfe && b[2] == 0xfe && b[3] == 0xfe)) //cgmin
-		printf("cx3\n");
+//		if ((b[0] == 0xff && b[1] == 0xff && b[2] == 0xff && b[3] == 0xff) || (b[0] == 0xfe && b[1] == 0xfe && b[2] == 0xfe && b[3] == 0xfe)) //cgmin
+//		printf("cx3\n");
 		
 	return( ((ulint)(b[0]) << 24)
 		| ((ulint)(b[1]) << 16)
@@ -85,8 +85,8 @@ buf_calc_page_crc32(
 	ut_crc32_func_t	crc32_func = use_legacy_big_endian
 		? ut_crc32_legacy_big_endian
 		: ut_crc32;
-if (mach_read_from_40(page+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
-	printf("cr6\n");
+//if (mach_read_from_40(page+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
+//	printf("cr6\n");
 	const uint32_t	c1 = crc32_func(
 		page + FIL_PAGE_OFFSET,
 		FIL_PAGE_FILE_FLUSH_LSN - FIL_PAGE_OFFSET);
@@ -116,7 +116,7 @@ buf_calc_page_new_checksum(
 	We must also skip the field FIL_PAGE_SPACE_OR_CHKSUM where the
 	checksum is stored, and also the last 8 bytes of page because
 	there we store the old formula checksum. */
-mach_read_from_40(page+FIL_PAGE_OFFSET); // cgmin
+//mach_read_from_40(page+FIL_PAGE_OFFSET); // cgmin
 	checksum = ut_fold_binary(page + FIL_PAGE_OFFSET,
 				  FIL_PAGE_FILE_FLUSH_LSN - FIL_PAGE_OFFSET)
 		+ ut_fold_binary(page + FIL_PAGE_DATA,

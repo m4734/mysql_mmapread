@@ -175,6 +175,22 @@ buf_read_page_low(
 
 		dst = ((buf_block_t*) bpage)->frame;
 	}
+/*
+	//cgmin cpu
+	if (sched_getcpu() != (intptr_t)dst/UNIV_PAGE_SIZE%24)
+	{
+		int cpu;
+		cpu_set_t set;
+	//	cpu = sched_getcpu();
+	//	get_n_procs_conf();
+		cpu = (intptr_t)dst/UNIV_PAGE_SIZE%24;
+	//	printf("before cpu %d to %d / dst %p\n",sched_getcpu(),cpu,dst);
+		CPU_ZERO(&set);
+		CPU_SET(cpu,&set);
+		sched_setaffinity(0,sizeof(cpu_set_t),&set);
+	//	printf("after cpu %d to %d / dst %p\n",sched_getcpu(),cpu,dst);
+	}
+*/
 
 	/* This debug code is only for 5.7. In trunk, with newDD,
 	the space->name is no longer same as table name. */

@@ -699,6 +699,22 @@ buf_block_get_frame(
 	}
 	ut_error;
 ok:
+/*
+//cgmin cpu
+	if (sched_getcpu() != (intptr_t)block->frame/UNIV_PAGE_SIZE%24)
+	{
+		int cpu;
+		cpu_set_t set;
+	//	cpu = sched_getcpu();
+	//	get_n_procs_conf();
+		cpu = (intptr_t)block->frame/UNIV_PAGE_SIZE%24;
+	//	printf("before cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
+		CPU_ZERO(&set);
+		CPU_SET(cpu,&set);
+		sched_setaffinity(0,sizeof(cpu_set_t),&set);
+	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
+	}
+*/
 	return((buf_frame_t*) block->frame);
 }
 #endif /* UNIV_DEBUG */
@@ -737,8 +753,8 @@ buf_ptr_get_fsp_addr(
 
 	*space = mach_read_from_4(page + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID);
 	addr->page = mach_read_from_4(page + FIL_PAGE_OFFSET);
-	if (addr->page == 0xffffffff)//cgmin
-		printf("cr7\n");
+//	if (addr->page == 0xffffffff)//cgmin
+//		printf("cr7\n");
 	addr->boffset = ut_align_offset(ptr, UNIV_PAGE_SIZE);
 }
 

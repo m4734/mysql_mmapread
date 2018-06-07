@@ -809,8 +809,8 @@ buf_page_is_corrupted(
 				read_buf + FIL_PAGE_SPACE_ID);
 			const ulint	page_no = mach_read_from_4(
 				read_buf + FIL_PAGE_OFFSET);
-if (page_no == 0xffffffff)//cgmin
-	printf("cr3\n");
+//if (page_no == 0xffffffff)//cgmin
+//	printf("cr3\n");
 			ib::error() << "Page " << page_id_t(space_id, page_no)
 				<< " log sequence number " << page_lsn
 				<< " is in the future! Current system"
@@ -898,8 +898,8 @@ if (page_no == 0xffffffff)//cgmin
 					read_buf + FIL_PAGE_SPACE_ID),
 				mach_read_from_4(
 					read_buf + FIL_PAGE_OFFSET));
-	if (mach_read_from_4(read_buf+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
-		printf("cr3\n");
+//	if (mach_read_from_4(read_buf+FIL_PAGE_OFFSET) == 0xffffffff) //cgmin
+//		printf("cr3\n");
 #endif /* UNIV_INNOCHECKSUM */
 
 	DBUG_EXECUTE_IF("buf_page_import_corrupt_failure", return(TRUE); );
@@ -2033,7 +2033,7 @@ buf_page_realloc(
 
 	if (buf_page_can_relocate(&block->page)) {
 		mutex_enter(&new_block->mutex);
-printf("realloc happened\n"); //cgmin
+//printf("realloc happened\n"); //cgmin
 		memcpy(new_block->frame, block->frame, UNIV_PAGE_SIZE);
 		memcpy(&new_block->page, &block->page, sizeof block->page);
 
@@ -4259,6 +4259,23 @@ loop:
 	rw_lock_s_unlock(hash_lock);
 
 got_block:
+/*
+	//cgmin cpu
+	if (sched_getcpu() != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
+	{
+		int cpu;
+		cpu_set_t set;
+	//	cpu = sched_getcpu();
+	//	get_n_procs_conf();
+		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
+	//	printf("before cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
+		CPU_ZERO(&set);
+		CPU_SET(cpu,&set);
+		sched_setaffinity(0,sizeof(cpu_set_t),&set);
+	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
+	}
+*/
+
 	if (mode == BUF_GET_IF_IN_POOL || mode == BUF_PEEK_IF_IN_POOL) {
 
 		buf_page_t*	fix_page = &fix_block->page;
@@ -4669,6 +4686,22 @@ got_block:
 	ut_ad(!rw_lock_own(hash_lock, RW_LOCK_X));
 	ut_ad(!rw_lock_own(hash_lock, RW_LOCK_S));
 
+/*
+	//cgmin cpu
+	if (sched_getcpu() != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
+	{
+		int cpu;
+		cpu_set_t set;
+	//	cpu = sched_getcpu();
+	//	get_n_procs_conf();
+		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
+	//	printf("before cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
+		CPU_ZERO(&set);
+		CPU_SET(cpu,&set);
+		sched_setaffinity(0,sizeof(cpu_set_t),&set);
+	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
+	}
+	*/
 	return(fix_block);
 }
 
@@ -5701,8 +5734,8 @@ buf_page_io_complete(
 		read_page_no = mach_read_from_4(frame + FIL_PAGE_OFFSET);
 		read_space_id = mach_read_from_4(
 			frame + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID);
-		if (read_page_no == 0xffffffff) //cgmin
-			printf("cr5\n");
+//		if (read_page_no == 0xffffffff) //cgmin
+//			printf("cr5\n");
 //printf("read_page_no %d read_space)id %d\n",read_page_no,read_space_id); //cgmin
 		if (bpage->id.space() == TRX_SYS_SPACE
 		    && buf_dblwr_page_inside(bpage->id.page_no())) {
