@@ -97,8 +97,16 @@ uint find_shortest_key(TABLE *table, const key_map *usable_keys);
 bool handle_query(THD *thd, LEX *lex, Query_result *result,
                   ulonglong added_options, ulonglong removed_options)
 {
-  DBUG_ENTER("handle_query");
-
+ DBUG_ENTER("handle_query");
+ /*
+ int cpu; //cgmin cpu
+	cpu = sched_getcpu();
+	cpu_set_t set,set2;
+	CPU_ZERO(&set);
+	CPU_SET(cpu,&set);
+	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
+	sched_setaffinity(0,sizeof(cpu_set_t),&set);
+*/
   SELECT_LEX_UNIT *const unit= lex->unit;
   SELECT_LEX *const select= unit->first_select();
   bool res;
@@ -212,6 +220,7 @@ err:
 
   // Abort the result set (if it has been prepared).
   result->abort_result_set();
+//	sched_setaffinity(0,sizeof(cpu_set_t),&set2);//cgmin cpu
 
   DBUG_RETURN(thd->is_error());
 }

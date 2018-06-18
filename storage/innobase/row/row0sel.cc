@@ -4261,6 +4261,14 @@ row_search_no_mvcc(
 	ulint		match_mode,
 	ulint		direction)
 {
+	int cpu; //cgmin cpu
+	cpu = sched_getcpu();
+	cpu_set_t set,set2;
+	CPU_ZERO(&set);
+	CPU_SET(cpu,&set);
+	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
+	sched_setaffinity(0,sizeof(cpu_set_t),&set);
+
 	dict_index_t*	index		= prebuilt->index;
 	const dtuple_t*	search_tuple	= prebuilt->search_tuple;
 	btr_pcur_t*	pcur		= prebuilt->pcur;
@@ -4518,6 +4526,9 @@ row_search_no_mvcc(
 	if (heap != NULL) {
 		mem_heap_free(heap);
 	}
+
+	sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin cpu
+
 	return(err);
 }
 
@@ -4602,6 +4613,14 @@ row_search_mvcc(
 	ulint		direction)
 {
 	DBUG_ENTER("row_search_mvcc");
+
+	int cpu; //cgmin cpu
+	cpu = sched_getcpu();
+	cpu_set_t set,set2;
+	CPU_ZERO(&set);
+	CPU_SET(cpu,&set);
+	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
+	sched_setaffinity(0,sizeof(cpu_set_t),&set);
 
 	dict_index_t*	index		= prebuilt->index;
 	ibool		comp		= dict_table_is_comp(index->table);
@@ -6280,6 +6299,8 @@ func_exit:
 #endif /* UNIV_DEBUG */
 
 	DEBUG_SYNC_C("innodb_row_search_for_mysql_exit");
+
+	sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin cpu
 
 	DBUG_RETURN(err);
 }

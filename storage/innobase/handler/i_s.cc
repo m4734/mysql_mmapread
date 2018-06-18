@@ -5218,7 +5218,7 @@ i_s_innodb_buffer_page_fill(
 {
 	TABLE*			table;
 	Field**			fields;
-
+printf("xxx2\n");//cgmin
 	DBUG_ENTER("i_s_innodb_buffer_page_fill");
 
 	table = tables->table;
@@ -5636,7 +5636,7 @@ i_s_innodb_buffer_page_fill_table(
 	Item*		)		/*!< in: condition (ignored) */
 {
 	int	status	= 0;
-
+printf("xxx\n"); //cgmin
 	DBUG_ENTER("i_s_innodb_buffer_page_fill_table");
 
 	RETURN_IF_INNODB_NOT_STARTED(tables->schema_table_name);

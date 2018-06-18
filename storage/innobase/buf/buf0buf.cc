@@ -4113,6 +4113,17 @@ buf_page_get_gen(
 
 	buf_pool->stat.n_page_gets++;
 	hash_lock = buf_page_hash_lock_get(buf_pool, page_id);
+
+	//cgmin cpu
+	int cpu;
+	cpu = sched_getcpu();
+	/*
+	cpu_set_t set;
+	CPU_ZERO(&set);
+	CPU_SET(cpu,&set);
+	sched_setaffinity(0,sizeof(cpu_set_t),&set);
+	*/
+
 loop:
 	block = guess;
 
@@ -4275,6 +4286,9 @@ got_block:
 	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
 	}
 */
+
+	++fix_block->page.cpu_check[cpu];
+
 
 	if (mode == BUF_GET_IF_IN_POOL || mode == BUF_PEEK_IF_IN_POOL) {
 
@@ -5676,6 +5690,19 @@ buf_mark_space_corrupt(
 	return(ret);
 }
 
+
+/*
+inline //cgmin test
+ulint
+fil_page_get_type2( //cgmin
+	const byte*	page,buf_page_t *bpage)
+{
+	++bpage->cpu_check[sched_getcpu()];
+	return(mach_read_from_2(page + FIL_PAGE_TYPE));
+}
+*/
+
+
 /********************************************************************//**
 Completes an asynchronous read or write request of a file page to or from
 the buffer pool.
@@ -5861,6 +5888,7 @@ corrupt:
 
 		/* If space is being truncated then avoid ibuf operation.
 		During re-init we have already freed ibuf entries. */
+//		printf("s1\n"); //cgmin
 		if (uncompressed
 		    && !Compression::is_compressed_page(frame)
 		    && !recv_no_ibuf_operations
@@ -5868,12 +5896,14 @@ corrupt:
 		    && bpage->id.space() != srv_tmp_space.space_id()
 		    && !srv_is_tablespace_truncated(bpage->id.space())
 		    && fil_page_get_type(frame) == FIL_PAGE_INDEX
+//		    && fil_page_get_type2(frame,bpage) == FIL_PAGE_INDEX //cgmin test
 		    && page_is_leaf(frame)) {
 
 			ibuf_merge_or_delete_for_page(
 				(buf_block_t*) bpage, bpage->id,
 				&bpage->size, TRUE);
 		}
+//		printf ("e1\n"); //cgmin
 	}
 
 	buf_pool_mutex_enter(buf_pool);

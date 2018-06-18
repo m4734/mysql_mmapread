@@ -5635,6 +5635,18 @@ fil_io(
 			node = UT_LIST_GET_NEXT(chain, node);
 		}
 	}
+	if (message != NULL) //cgmin cpu
+	{
+		if (strcmp(node->name,"./ycsb/usertable.ibd") == 0) // cgmin
+			((buf_page_t*)message)->mmapread = true;
+		else
+		{
+	//		printf("%s\n",node->name);
+			((buf_page_t*)message)->mmapread = false;
+		}
+	}
+//	else
+//		((buf_page_t*)message)->mmapread = false;
 
 	/* Open file if closed */
 	if (!fil_node_prepare_for_io(node, fil_system, space)) {

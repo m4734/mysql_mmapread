@@ -24,7 +24,7 @@ SET(MSVC    "")
 SET(SOLARIS "")
 SET(UNIX    "1")
 
-SET(MYLIBS "dbug;strings;regex;mysys;mysys_ssl;vio;zlib;yassl;taocrypt;archive_embedded;blackhole_embedded;csv_embedded;federated_embedded;heap_embedded;innobase_embedded;lz4_lib;myisam_embedded;myisammrg_embedded;partition_embedded;ngram_parser_embedded;sql_embedded")
+SET(MYLIBS "dbug;strings;regex;mysys;mysys_ssl;vio;zlib;yassl;taocrypt;archive_embedded;blackhole_embedded;csv_embedded;federated_embedded;heap_embedded;innobase;lz4_lib;myisam_embedded;myisammrg_embedded;partition_embedded;ngram_parser;sql_embedded")
 SET(MYSQL_CMAKE_SCRIPT_DIR "/home/dcslab/cgmin/mysql_mmapread/cmake")
 
 SET(CMAKE_AR "/bin/ar")

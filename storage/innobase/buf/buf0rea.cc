@@ -207,7 +207,8 @@ buf_read_page_low(
 	IORequest	request(type | IORequest::READ);
 
 //printf("%x\n",mach_read_from_4((byte*)dst+FIL_PAGE_OFFSET)); //cgmin here2
-#if 0
+
+#if 1
 	*err = fil_io(
 		request, true, page_id, page_size, 0, page_size.physical(),
 		dst, bpage);

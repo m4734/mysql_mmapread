@@ -1224,7 +1224,12 @@ buf_block_get_frame(
 	const buf_block_t*	block)	/*!< in: pointer to the control block */
 	MY_ATTRIBUTE((warn_unused_result));
 #else /* UNIV_DEBUG */
-# define buf_block_get_frame(block) (block)->frame
+//# define buf_block_get_frame(block) (block)->frame
+static
+buf_frame_t*
+buf_block_get_frame(
+/*================*/
+	const buf_block_t* block);	/*!< in: pointer to the control block */
 #endif /* UNIV_DEBUG */
 /*********************************************************************//**
 Gets the compressed page descriptor corresponding to an uncompressed page
@@ -1688,6 +1693,8 @@ public:
 					or buf_block_t::mutex. */
 # endif /* UNIV_DEBUG */
 #endif /* !UNIV_HOTBACKUP */
+	int cpu_check[48];//cgmin cpu
+	bool mmapread;
 };
 
 /** The buffer control block structure */
