@@ -699,7 +699,6 @@ buf_block_get_frame(
 	}
 	ut_error;
 ok:
-//++block->page.cpu_check[sched_getcpu()];
 /*
 //cgmin cpu
 	if (sched_getcpu() != (intptr_t)block->frame/UNIV_PAGE_SIZE%24)
@@ -725,6 +724,9 @@ buf_block_get_frame( //cgmin
 /*================*/
 	const buf_block_t*	block)	/*!< in: pointer to the control block */
 {
+//	if (block->page.cpu_check[sched_getcpu()] == 0)
+//		printf("x\n");
+//++block->page.cpu_check[sched_getcpu()];
 	return((buf_frame_t*) block->frame);
 }
 #endif /* UNIV_DEBUG */

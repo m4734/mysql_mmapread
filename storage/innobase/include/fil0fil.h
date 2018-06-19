@@ -1310,18 +1310,6 @@ fil_page_get_type(
 {
 	return(mach_read_from_2(page + FIL_PAGE_TYPE));
 }
-/*
-inline
-ulint
-fil_page_get_type2(
-	const byte*	page,buf_page_t *bpage)
-{
-//	printf("fpgt %d\n",sched_getcpu());
-//	assert(0);
-	++bpage->cpu_check[sched_getcpu()];
-	return(mach_read_from_2(page + FIL_PAGE_TYPE));
-}
-*/
 
 /** Check (and if needed, reset) the page type.
 Data files created before MySQL 5.1 may contain

@@ -1080,7 +1080,8 @@ retry:
 
 		unsigned	accessed = buf_page_is_accessed(bpage);
 
-		if ((first == 0 ||  bpage->cpu_check[cpu] > 0) && buf_flush_ready_for_replace(bpage)) {
+		if ((first == 0 ||  /*bpage->cpu_check[cpu] > 0*/ bpage->prev_cpu == cpu+1) && buf_flush_ready_for_replace(bpage)) {
+//			printf("a\n");
 			mutex_exit(mutex);
 			freed = buf_LRU_free_page(bpage, true);
 		} else {
@@ -1101,7 +1102,7 @@ retry:
 if (first == 1 && freed == 0)
 {
 	first = 0;
-	printf("%s: cannot free pages due to cpu_check\n", __func__);
+//	printf("%s: cannot free pages due to cpu_check\n", __func__);
 	goto retry;
 }
 
@@ -1183,21 +1184,57 @@ buf_LRU_get_free_only(
 		UT_LIST_GET_FIRST(buf_pool->free));
 
 	be = reinterpret_cast<buf_block_t*>(UT_LIST_GET_LAST(buf_pool->free));
-
+#if 1 
 	int cpu = sched_getcpu();
 
 	while (block != NULL)
 	{
-		if (block->page.cpu_check[cpu] > 0)
+//		if (block->page.cpu_check[cpu] > 0)
+		if (block->page.prev_cpu == cpu+1)		
 		{
-			UT_LIST_REMOVE(buf_pool->free,&block->page);
-			return (block);
-		}
+//			printf("b\n");// cgmin
+//			UT_LIST_REMOVE(buf_pool->free,&block->page);
+
+			ut_ad(block->page.in_free_list);
+
+			ut_d(block->page.in_free_list = FALSE);
+			ut_ad(!block->page.in_flush_list);
+			ut_ad(!block->page.in_LRU_list);
+			ut_a(!buf_page_in_file(&block->page));
+			UT_LIST_REMOVE(buf_pool->free, &block->page);
+
+			if (buf_pool->curr_size >= buf_pool->old_size
+			    || UT_LIST_GET_LEN(buf_pool->withdraw)
+				>= buf_pool->withdraw_target
+			    || !buf_block_will_withdrawn(buf_pool, block)) {
+				/* found valid free block */
+				buf_page_mutex_enter(block);
+				/* No adaptive hash index entries may point to
+				a free block. */
+				assert_block_ahi_empty(block);
+
+				buf_block_set_state(block, BUF_BLOCK_READY_FOR_USE);
+				UNIV_MEM_ALLOC(block->frame, UNIV_PAGE_SIZE);
+
+				ut_ad(buf_pool_from_block(block) == buf_pool);
+
+				buf_page_mutex_exit(block);
+				return (block); //cgmin
+				break;
+			}
+			UT_LIST_ADD_LAST(
+			buf_pool->withdraw,
+			&block->page);
+		ut_d(block->in_withdraw_list = TRUE);
+
+	}
+
 		if (block == be)
 			break;
 		block = reinterpret_cast<buf_block_t*>UT_LIST_GET_NEXT(LRU,&block->page);
 	}
-
+//printf("b2\n");// cgmin
+#endif
 	block = reinterpret_cast<buf_block_t*>(
 		UT_LIST_GET_FIRST(buf_pool->free));
 
@@ -1371,7 +1408,7 @@ loop:
 		int i,cnt=0,/*fpgt,pil,*/m/*,cpu*/; //cgmin cpu
 	//	fpgt = fil_page_get_type( ( (buf_block_t*)bpage)->frame );
 	//	pil = page_is_leaf( ( (buf_block_t*)bpage)->frame );
-		if (block->page.mmapread) {
+//		if (block->page.mmapread) {
 			m = 1;
 			for (i=0;i<48;++i)
 			{
@@ -1389,10 +1426,8 @@ loop:
 				   k[24],k[25],k[26],k[27],k[28],k[29],k[30],k[31],k[32],k[33],k[34],k[35],
 				   k[36],k[37],k[38],k[39],k[40],k[41],k[42],k[43],k[44],k[45],k[46],k[47],		   
 				   cnt,/*fpgt,pil,*/m);
-		}
+//		}
 
-	//	cpu = sched_getcpu();
-	//	++bpage->cpu_check[cpu];
 		for (i=0;i<48;++i)
 			block->page.cpu_check[i] = 0;
 
@@ -1944,7 +1979,7 @@ buf_LRU_free_page(
 
 	BPageMutex*	block_mutex = buf_page_get_mutex(bpage);
 
-
+/*
 	int cpu; // cgmin
 	cpu = sched_getcpu();
 	cpu_set_t set,set2;
@@ -1952,11 +1987,7 @@ buf_LRU_free_page(
 	CPU_SET(cpu,&set);
 	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
 	sched_setaffinity(0,sizeof(cpu_set_t),&set);
-
-
-
-
-
+*/
 
 	ut_ad(buf_pool_mutex_own(buf_pool));
 	ut_ad(buf_page_in_file(bpage));
@@ -1990,7 +2021,7 @@ buf_LRU_free_page(
 func_exit:
 		rw_lock_x_unlock(hash_lock);
 		mutex_exit(block_mutex);
-		sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin
+//		sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin
 	return(false);
 
 	} else if (buf_page_get_state(bpage) == BUF_BLOCK_FILE_PAGE) {
@@ -1999,7 +2030,7 @@ func_exit:
 		memcpy(b, bpage, sizeof *b);
 	}
 
-#if 1
+#if 0 
 	int i,cnt=0,/*fpgt,pil,*/m/*,cpu*/; //cgmin cpu
 //	fpgt = fil_page_get_type( ( (buf_block_t*)bpage)->frame );
 //	pil = page_is_leaf( ( (buf_block_t*)bpage)->frame );
@@ -2027,11 +2058,14 @@ func_exit:
 		   k[24],k[25],k[26],k[27],k[28],k[29],k[30],k[31],k[32],k[33],k[34],k[35],
 		   k[36],k[37],k[38],k[39],k[40],k[41],k[42],k[43],k[44],k[45],k[46],k[47],		   
 		   cnt,/*fpgt,pil,*/m);
-
 	for (i=0;i<48;++i)
 		bpage->cpu_check[i] = 0;
 #endif
-
+	/*
+	int i;
+	for (i=0;i<48;++i)
+		bpage->cpu_check[i] = 0;
+*/
 	ut_ad(buf_pool_mutex_own(buf_pool));
 	ut_ad(buf_page_in_file(bpage));
 	ut_ad(bpage->in_LRU_list);
@@ -2044,7 +2078,7 @@ func_exit:
 	ut_ad(buf_page_can_relocate(bpage));
 
 	if (!buf_LRU_block_remove_hashed(bpage, zip)) {
-			sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin
+//			sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin
 		return(true);
 	}
 
@@ -2219,7 +2253,7 @@ func_exit:
 
 	buf_LRU_block_free_hashed_page((buf_block_t*) bpage);
 
-		sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin
+//		sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin
 
 	return(true);
 }

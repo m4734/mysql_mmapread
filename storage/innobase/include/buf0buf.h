@@ -1694,7 +1694,8 @@ public:
 # endif /* UNIV_DEBUG */
 #endif /* !UNIV_HOTBACKUP */
 	int cpu_check[48];//cgmin cpu
-	bool mmapread;
+//	bool mmapread;
+	int prev_cpu;
 };
 
 /** The buffer control block structure */

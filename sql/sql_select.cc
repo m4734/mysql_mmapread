@@ -98,7 +98,7 @@ bool handle_query(THD *thd, LEX *lex, Query_result *result,
                   ulonglong added_options, ulonglong removed_options)
 {
  DBUG_ENTER("handle_query");
- /*
+/*
  int cpu; //cgmin cpu
 	cpu = sched_getcpu();
 	cpu_set_t set,set2;

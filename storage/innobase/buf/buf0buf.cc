@@ -4287,7 +4287,8 @@ got_block:
 	}
 */
 
-	++fix_block->page.cpu_check[cpu];
+//	++fix_block->page.cpu_check[cpu]; //cgmin test
+	fix_block->page.prev_cpu = cpu+1;
 
 
 	if (mode == BUF_GET_IF_IN_POOL || mode == BUF_PEEK_IF_IN_POOL) {
@@ -5689,19 +5690,6 @@ buf_mark_space_corrupt(
 
 	return(ret);
 }
-
-
-/*
-inline //cgmin test
-ulint
-fil_page_get_type2( //cgmin
-	const byte*	page,buf_page_t *bpage)
-{
-	++bpage->cpu_check[sched_getcpu()];
-	return(mach_read_from_2(page + FIL_PAGE_TYPE));
-}
-*/
-
 
 /********************************************************************//**
 Completes an asynchronous read or write request of a file page to or from

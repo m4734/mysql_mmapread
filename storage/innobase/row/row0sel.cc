@@ -4261,6 +4261,7 @@ row_search_no_mvcc(
 	ulint		match_mode,
 	ulint		direction)
 {
+	
 	int cpu; //cgmin cpu
 	cpu = sched_getcpu();
 	cpu_set_t set,set2;

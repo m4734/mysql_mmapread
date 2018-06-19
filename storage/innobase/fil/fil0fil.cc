@@ -5635,6 +5635,7 @@ fil_io(
 			node = UT_LIST_GET_NEXT(chain, node);
 		}
 	}
+	/*
 	if (message != NULL) //cgmin cpu
 	{
 		if (strcmp(node->name,"./ycsb/usertable.ibd") == 0) // cgmin
@@ -5645,6 +5646,7 @@ fil_io(
 			((buf_page_t*)message)->mmapread = false;
 		}
 	}
+	*/
 //	else
 //		((buf_page_t*)message)->mmapread = false;
 
