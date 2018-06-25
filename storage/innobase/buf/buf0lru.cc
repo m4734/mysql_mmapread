@@ -1082,6 +1082,17 @@ retry:
 
 		if ((first == 0 ||  /*bpage->cpu_check[cpu] > 0*/ bpage->prev_cpu == cpu+1) && buf_flush_ready_for_replace(bpage)) {
 //			printf("a\n");
+			/*
+			if (cpu != (intptr_t)((buf_block_t*)bpage)->frame/UNIV_PAGE_SIZE%24)
+			{
+		cpu_set_t set;
+		cpu = (intptr_t)((buf_block_t*)bpage)->frame/UNIV_PAGE_SIZE%24;
+		CPU_ZERO(&set);
+		CPU_SET(cpu,&set);
+		sched_setaffinity(0,sizeof(cpu_set_t),&set);
+	
+			}
+*/
 			mutex_exit(mutex);
 			freed = buf_LRU_free_page(bpage, true);
 		} else {
@@ -2030,15 +2041,17 @@ func_exit:
 		memcpy(b, bpage, sizeof *b);
 	}
 
-#if 0 
-	int i,cnt=0,/*fpgt,pil,*/m/*,cpu*/; //cgmin cpu
+#if 1 
+//	int i,cnt=0,/*fpgt,pil,*/m/*,cpu*/; //cgmin cpu
+	int i,cnt=0;	
 //	fpgt = fil_page_get_type( ( (buf_block_t*)bpage)->frame );
 //	pil = page_is_leaf( ( (buf_block_t*)bpage)->frame );
+/*
 	if (bpage->mmapread)
 		m = 1;
 	else
 		m = 0;
-
+*/
 //	cpu = sched_getcpu();
 //	++bpage->cpu_check[cpu];
 
@@ -2052,12 +2065,13 @@ func_exit:
 		   "%d %d %d %d %d %d %d %d %d %d %d %d "
 		   "%d %d %d %d %d %d %d %d %d %d %d %d "
 		   "%d %d %d %d %d %d %d %d %d %d %d %d "
-		   "cnt %d mmapread %d -\n",
+		   "cnt %d\n",
 		   k[0],k[1],k[2],k[3],k[4],k[5],k[6],k[7],k[8],k[9],k[10],k[11],
 		   k[12],k[13],k[14],k[15],k[16],k[17],k[18],k[19],k[20],k[21],k[22],k[23],
 		   k[24],k[25],k[26],k[27],k[28],k[29],k[30],k[31],k[32],k[33],k[34],k[35],
 		   k[36],k[37],k[38],k[39],k[40],k[41],k[42],k[43],k[44],k[45],k[46],k[47],		   
-		   cnt,/*fpgt,pil,*/m);
+		   cnt);
+//		   cnt,/*fpgt,pil,*/m);
 	for (i=0;i<48;++i)
 		bpage->cpu_check[i] = 0;
 #endif

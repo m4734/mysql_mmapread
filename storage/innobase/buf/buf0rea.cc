@@ -177,8 +177,8 @@ buf_read_page_low(
 	}
 /*
 	//cgmin cpu
-	if (sched_getcpu() != (intptr_t)dst/UNIV_PAGE_SIZE%24)
-	{
+//	if (sched_getcpu() != (intptr_t)dst/UNIV_PAGE_SIZE%24)
+//	{
 		int cpu;
 		cpu_set_t set;
 	//	cpu = sched_getcpu();
@@ -189,7 +189,7 @@ buf_read_page_low(
 		CPU_SET(cpu,&set);
 		sched_setaffinity(0,sizeof(cpu_set_t),&set);
 	//	printf("after cpu %d to %d / dst %p\n",sched_getcpu(),cpu,dst);
-	}
+//	}
 */
 
 	/* This debug code is only for 5.7. In trunk, with newDD,
@@ -305,7 +305,7 @@ buf_read_ahead_random(
 
 		return(0);
 	}
-
+printf("rra no!\n");
 	low  = (page_id.page_no() / buf_read_ahead_random_area)
 		* buf_read_ahead_random_area;
 
@@ -757,7 +757,7 @@ buf_read_ahead_linear(
 	full read batch to be posted, we use special heuristics here */
 
 	os_aio_simulated_put_read_threads_to_sleep();
-
+printf("lra no!\n");
 	for (i = low; i < high; i++) {
 		/* It is only sensible to do read-ahead in the non-sync
 		aio mode: hence FALSE as the first parameter */

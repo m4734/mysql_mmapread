@@ -699,22 +699,6 @@ buf_block_get_frame(
 	}
 	ut_error;
 ok:
-/*
-//cgmin cpu
-	if (sched_getcpu() != (intptr_t)block->frame/UNIV_PAGE_SIZE%24)
-	{
-		int cpu;
-		cpu_set_t set;
-	//	cpu = sched_getcpu();
-	//	get_n_procs_conf();
-		cpu = (intptr_t)block->frame/UNIV_PAGE_SIZE%24;
-	//	printf("before cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
-		CPU_ZERO(&set);
-		CPU_SET(cpu,&set);
-		sched_setaffinity(0,sizeof(cpu_set_t),&set);
-	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
-	}
-*/
 	return((buf_frame_t*) block->frame);
 }
 #else
@@ -723,11 +707,25 @@ buf_frame_t*
 buf_block_get_frame( //cgmin
 /*================*/
 	const buf_block_t*	block)	/*!< in: pointer to the control block */
+//	buf_block_t* block)	
 {
-//	if (block->page.cpu_check[sched_getcpu()] == 0)
-//		printf("x\n");
+	/*
+	buf_block_t* b2 = block;
+	if (b2->page.cpu_check[sched_getcpu()] == 0)
+		printf("x\n");
+		*/
 //++block->page.cpu_check[sched_getcpu()];
-	return((buf_frame_t*) block->frame);
+/*
+		if (sched_getcpu() != (intptr_t)block->frame/UNIV_PAGE_SIZE%24)
+		{
+			printf("bbgf\n");
+			int v;
+			scanf("%d",&v);
+			if (v < 0)
+				assert(0);
+		}
+		*/
+return((buf_frame_t*) block->frame);
 }
 #endif /* UNIV_DEBUG */
 

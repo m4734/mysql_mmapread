@@ -716,6 +716,23 @@ btr_search_info_update_slow(
 	ut_ad(!rw_lock_own(btr_get_search_latch(cursor->index), RW_LOCK_X));
 
 	block = btr_cur_get_block(cursor);
+//	++block->page.cpu_check[sched_getcpu()];
+	//cgmin cpu
+//	int cpu = sched_getcpu();
+//	if (cpu != (intptr_t)block->frame/UNIV_PAGE_SIZE%24)
+//	{
+	/*
+int cpu;	
+		cpu_set_t set;
+		cpu = (intptr_t)block->frame/UNIV_PAGE_SIZE%24;
+		CPU_ZERO(&set);
+		CPU_SET(cpu,&set);
+		sched_setaffinity(0,sizeof(cpu_set_t),&set);
+		*/
+//	}
+
+
+//		printf("cpu %d %p\n",cpu,block->frame);
 
 	/* NOTE that the following two function calls do NOT protect
 	info or block->n_fields etc. with any semaphore, to save CPU time!
@@ -754,6 +771,8 @@ btr_search_info_update_slow(
 						 block->n_bytes,
 						 block->left_side);
 	}
+//	printf("cpu %d %p\n",cpu,block->frame);
+
 }
 
 /** Checks if a guessed position for a tree cursor is right. Note that if

@@ -4270,11 +4270,13 @@ loop:
 	rw_lock_s_unlock(hash_lock);
 
 got_block:
-/*
+
 	//cgmin cpu
-	if (sched_getcpu() != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
-	{
-		int cpu;
+/*	
+//	cpu = sched_getcpu();
+//	if (cpu != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
+//	{
+//		int cpu;
 		cpu_set_t set;
 	//	cpu = sched_getcpu();
 	//	get_n_procs_conf();
@@ -4284,12 +4286,13 @@ got_block:
 		CPU_SET(cpu,&set);
 		sched_setaffinity(0,sizeof(cpu_set_t),&set);
 	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
-	}
+//	}
+//		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
 */
-
-//	++fix_block->page.cpu_check[cpu]; //cgmin test
+/*	
+	++fix_block->page.cpu_check[cpu]; //cgmin test
 	fix_block->page.prev_cpu = cpu+1;
-
+*/
 
 	if (mode == BUF_GET_IF_IN_POOL || mode == BUF_PEEK_IF_IN_POOL) {
 
@@ -4703,10 +4706,10 @@ got_block:
 
 /*
 	//cgmin cpu
-	if (sched_getcpu() != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
-	{
-		int cpu;
-		cpu_set_t set;
+//	if (sched_getcpu() != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
+//	{
+//		int cpu;
+//		cpu_set_t set;
 	//	cpu = sched_getcpu();
 	//	get_n_procs_conf();
 		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
@@ -4715,9 +4718,11 @@ got_block:
 		CPU_SET(cpu,&set);
 		sched_setaffinity(0,sizeof(cpu_set_t),&set);
 	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
-	}
-	*/
-	return(fix_block);
+//	}
+*/	
+		++fix_block->page.cpu_check[cpu]; //cgmin test
+	fix_block->page.prev_cpu = cpu+1;
+return(fix_block);
 }
 
 /********************************************************************//**
