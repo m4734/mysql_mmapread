@@ -1053,7 +1053,8 @@ buf_LRU_free_from_common_LRU_list(
 	ut_ad(buf_pool_mutex_own(buf_pool));
 
 	int cpu; //cgmin
-	cpu = sched_getcpu();
+//	cpu = sched_getcpu();
+	cpu = buf_pool->cpu;	
 	ulint scanned;
 	bool freed;
 //	ulint		scanned = 0;
@@ -1203,7 +1204,8 @@ buf_LRU_get_free_only(
 	block = reinterpret_cast<buf_block_t*>(
 		UT_LIST_GET_FIRST(buf_pool->free));
 
-	int cpu = sched_getcpu();
+	int cpu = buf_pool->cpu;//sched_getcpu();
+	
 	be = reinterpret_cast<buf_block_t*>(UT_LIST_GET_LAST(buf_pool->free));
 	keep = NULL;
 	while (block != NULL)

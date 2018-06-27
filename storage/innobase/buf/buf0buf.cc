@@ -4118,6 +4118,7 @@ buf_page_get_gen(
 	int cpu;
 	cpu_set_t set;
 	cpu = sched_getcpu();
+	buf_pool->cpu = cpu;
 	/*
 	cpu_set_t set;
 	CPU_ZERO(&set);
@@ -4734,6 +4735,7 @@ got_block:
 	}
 	*/
 	fix_block->page.prev_cpu = cpu+1;
+//	fix_block->page.prev_cpu = 0;	
 return(fix_block);
 }
 

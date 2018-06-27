@@ -1693,9 +1693,9 @@ public:
 					or buf_block_t::mutex. */
 # endif /* UNIV_DEBUG */
 #endif /* !UNIV_HOTBACKUP */
-	int cpu_check[48];//cgmin cpu
+//	int cpu_check[48];//cgmin cpu
 //	bool mmapread;
-	int prev_cpu;
+	int prev_cpu; //cgmin cpu
 };
 
 /** The buffer control block structure */
@@ -2273,6 +2273,7 @@ struct buf_pool_t{
 # error "BUF_BUDDY_LOW > UNIV_ZIP_SIZE_MIN"
 #endif
 	/* @} */
+	int cpu; //cgmin
 };
 
 /** Print the given buf_pool_t object.
