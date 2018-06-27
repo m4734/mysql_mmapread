@@ -4261,7 +4261,7 @@ row_search_no_mvcc(
 	ulint		match_mode,
 	ulint		direction)
 {
-/*	
+	
 	int cpu; //cgmin cpu
 	cpu = sched_getcpu();
 	cpu_set_t set,set2;
@@ -4269,7 +4269,7 @@ row_search_no_mvcc(
 	CPU_SET(cpu,&set);
 	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
 	sched_setaffinity(0,sizeof(cpu_set_t),&set);
-*/
+
 	dict_index_t*	index		= prebuilt->index;
 	const dtuple_t*	search_tuple	= prebuilt->search_tuple;
 	btr_pcur_t*	pcur		= prebuilt->pcur;
@@ -4528,7 +4528,7 @@ row_search_no_mvcc(
 		mem_heap_free(heap);
 	}
 
-//	sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin cpu
+	sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin cpu
 
 	return(err);
 }
@@ -4615,6 +4615,10 @@ row_search_mvcc(
 {
 	DBUG_ENTER("row_search_mvcc");
 
+//	timeval tv1,tv2,tv3,tv4;
+
+//	gettimeofday(&tv1,NULL);
+
 	int cpu; //cgmin cpu
 	cpu = sched_getcpu();
 	cpu_set_t set,set2;
@@ -4622,6 +4626,8 @@ row_search_mvcc(
 	CPU_SET(cpu,&set);
 	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
 	sched_setaffinity(0,sizeof(cpu_set_t),&set);
+
+//	gettimeofday(&tv2,NULL);
 
 	dict_index_t*	index		= prebuilt->index;
 	ibool		comp		= dict_table_is_comp(index->table);
@@ -6300,9 +6306,10 @@ func_exit:
 #endif /* UNIV_DEBUG */
 
 	DEBUG_SYNC_C("innodb_row_search_for_mysql_exit");
-
+//gettimeofday(&tv3,NULL);
 	sched_setaffinity(0,sizeof(cpu_set_t),&set2); //cgmin cpu
-
+//gettimeofday(&tv4,NULL);
+//printf("%d %d %d\n",(tv2.tv_sec-tv1.tv_sec)*1000000+tv2.tv_usec-tv1.tv_usec,(tv4.tv_sec-tv3.tv_sec)*1000000+tv4.tv_usec-tv3.tv_usec,(tv4.tv_sec-tv1.tv_sec)*1000000+tv4.tv_usec-tv1.tv_usec);
 	DBUG_RETURN(err);
 }
 

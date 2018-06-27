@@ -4116,6 +4116,7 @@ buf_page_get_gen(
 
 	//cgmin cpu
 	int cpu;
+	cpu_set_t set;
 	cpu = sched_getcpu();
 	/*
 	cpu_set_t set;
@@ -4272,27 +4273,29 @@ loop:
 got_block:
 
 	//cgmin cpu
-/*	
+	/*
 //	cpu = sched_getcpu();
 //	if (cpu != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
-//	{
+	if (fix_block->page.prev_cpu != 0 && fix_block->page.prev_cpu != sched_getcpu())	
+	{
 //		int cpu;
 		cpu_set_t set;
 	//	cpu = sched_getcpu();
 	//	get_n_procs_conf();
-		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
+//		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
+		cpu = fix_block->page.prev_cpu;		
 	//	printf("before cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
 		CPU_ZERO(&set);
 		CPU_SET(cpu,&set);
 		sched_setaffinity(0,sizeof(cpu_set_t),&set);
 	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
-//	}
+	}
 //		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
 */
-/*	
-	++fix_block->page.cpu_check[cpu]; //cgmin test
-	fix_block->page.prev_cpu = cpu+1;
-*/
+	
+//	++fix_block->page.cpu_check[cpu]; //cgmin test
+//	fix_block->page.prev_cpu = cpu+1;
+
 
 	if (mode == BUF_GET_IF_IN_POOL || mode == BUF_PEEK_IF_IN_POOL) {
 
@@ -4707,20 +4710,29 @@ got_block:
 /*
 	//cgmin cpu
 //	if (sched_getcpu() != (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24)
-//	{
+	if (fix_block->page.prev_cpu != 0 && sched_getcpu() != fix_block->page.prev_cpu)	
+	{
 //		int cpu;
 //		cpu_set_t set;
 	//	cpu = sched_getcpu();
 	//	get_n_procs_conf();
-		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
+//		cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24;
+		cpu = fix_block->page.prev_cpu;		
 	//	printf("before cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
 		CPU_ZERO(&set);
 		CPU_SET(cpu,&set);
 		sched_setaffinity(0,sizeof(cpu_set_t),&set);
 	//	printf("after cpu %d to %d / frame %p\n",sched_getcpu(),cpu,fix_block->frame);
-//	}
+	}
 */	
-		++fix_block->page.cpu_check[cpu]; //cgmin test
+//		++fix_block->page.cpu_check[cpu]; //cgmin test
+		/*
+	if (fix_block->page.prev_cpu == 0)
+	{
+		fix_block->page.prev_cpu = (intptr_t)fix_block->frame/UNIV_PAGE_SIZE%24+1;		
+		printf("%d\n",fix_block->page.prev_cpu);
+	}
+	*/
 	fix_block->page.prev_cpu = cpu+1;
 return(fix_block);
 }

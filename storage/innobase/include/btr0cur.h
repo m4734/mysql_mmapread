@@ -65,7 +65,7 @@ struct btr_latch_leaves_t {
 #include "row0types.h"
 #include "ha0ha.h"
 
-//#define BTR_CUR_ADAPT
+#define BTR_CUR_ADAPT
 // cgmin
 #define BTR_CUR_HASH_ADAPT
 

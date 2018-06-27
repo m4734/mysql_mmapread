@@ -1052,16 +1052,16 @@ buf_LRU_free_from_common_LRU_list(
 {
 	ut_ad(buf_pool_mutex_own(buf_pool));
 
-	int cpu,first=1; //cgmin
+	int cpu; //cgmin
 	cpu = sched_getcpu();
 	ulint scanned;
 	bool freed;
-retry:
 //	ulint		scanned = 0;
 //	bool		freed = false;
 	scanned = 0;
 	freed = false;
-
+//scan_all = true; //cgmin
+	buf_page_t* keep = NULL;
 	for (buf_page_t* bpage = buf_pool->lru_scan_itr.start();
 	     bpage != NULL
 	     && !freed
@@ -1080,7 +1080,9 @@ retry:
 
 		unsigned	accessed = buf_page_is_accessed(bpage);
 
-		if ((first == 0 ||  /*bpage->cpu_check[cpu] > 0*/ bpage->prev_cpu == cpu+1) && buf_flush_ready_for_replace(bpage)) {
+//		if ((first == 0 ||  /*bpage->cpu_check[cpu] > 0*/ bpage->prev_cpu == cpu+1 || bpage->prev_cpu == 0) && buf_flush_ready_for_replace(bpage)) {
+		if (bpage->prev_cpu == cpu+1 || bpage->prev_cpu == 0)
+		{		
 //			printf("a\n");
 			/*
 			if (cpu != (intptr_t)((buf_block_t*)bpage)->frame/UNIV_PAGE_SIZE%24)
@@ -1093,9 +1095,19 @@ retry:
 	
 			}
 */
+			if (buf_flush_ready_for_replace(bpage))
+			{
+				mutex_exit(mutex);
+				freed = buf_LRU_free_page(bpage, true);
+			}
+			else
+				mutex_exit(mutex);
+		} else if (keep == NULL && buf_flush_ready_for_replace(bpage))
+		{
 			mutex_exit(mutex);
-			freed = buf_LRU_free_page(bpage, true);
-		} else {
+			keep = bpage;
+		}
+	   	else {
 			mutex_exit(mutex);
 		}
 
@@ -1109,13 +1121,9 @@ retry:
 		ut_ad(buf_pool_mutex_own(buf_pool));
 		ut_ad(!mutex_own(mutex));
 	}
-	
-if (first == 1 && freed == 0)
-{
-	first = 0;
-//	printf("%s: cannot free pages due to cpu_check\n", __func__);
-	goto retry;
-}
+
+	if (freed == 0 && keep != NULL)
+		freed = buf_LRU_free_page(keep, true);
 
 	if (scanned) {
 		MONITOR_INC_VALUE_CUMULATIVE(
@@ -1187,24 +1195,23 @@ buf_LRU_get_free_only(
 /*==================*/
 	buf_pool_t*	buf_pool)
 {
-	buf_block_t*	block,*be;
+	buf_block_t*	block,*be,*keep;
 
 	ut_ad(buf_pool_mutex_own(buf_pool));
 
+#if 1 
 	block = reinterpret_cast<buf_block_t*>(
 		UT_LIST_GET_FIRST(buf_pool->free));
 
-	be = reinterpret_cast<buf_block_t*>(UT_LIST_GET_LAST(buf_pool->free));
-#if 1 
 	int cpu = sched_getcpu();
-
+	be = reinterpret_cast<buf_block_t*>(UT_LIST_GET_LAST(buf_pool->free));
+	keep = NULL;
 	while (block != NULL)
 	{
 //		if (block->page.cpu_check[cpu] > 0)
-		if (block->page.prev_cpu == cpu+1)		
+		if (block->page.prev_cpu == cpu+1 || block->page.prev_cpu == 0)		
 		{
-//			printf("b\n");// cgmin
-//			UT_LIST_REMOVE(buf_pool->free,&block->page);
+//			printf("b\n");// cgmin cpu
 
 			ut_ad(block->page.in_free_list);
 
@@ -1238,13 +1245,53 @@ buf_LRU_get_free_only(
 			&block->page);
 		ut_d(block->in_withdraw_list = TRUE);
 
-	}
+//		printf("withdraw\n");
 
+		}
+		else if(keep == NULL)
+		{
+			ut_ad(block->page.in_free_list);
+
+			ut_d(block->page.in_free_list = FALSE);
+			ut_ad(!block->page.in_flush_list);
+			ut_ad(!block->page.in_LRU_list);
+			ut_a(!buf_page_in_file(&block->page));
+//			UT_LIST_REMOVE(buf_pool->free, &block->page);
+
+			if (buf_pool->curr_size >= buf_pool->old_size
+			    || UT_LIST_GET_LEN(buf_pool->withdraw)
+				>= buf_pool->withdraw_target
+			    || !buf_block_will_withdrawn(buf_pool, block))
+			keep = block;	
+	
+		}
 		if (block == be)
 			break;
 		block = reinterpret_cast<buf_block_t*>UT_LIST_GET_NEXT(LRU,&block->page);
 	}
-//printf("b2\n");// cgmin
+
+	if (keep != NULL)
+	{
+		block = keep;
+		UT_LIST_REMOVE(buf_pool->free, &block->page);
+
+		buf_page_mutex_enter(block);
+				/* No adaptive hash index entries may point to
+				a free block. */
+				assert_block_ahi_empty(block);
+
+				buf_block_set_state(block, BUF_BLOCK_READY_FOR_USE);
+				UNIV_MEM_ALLOC(block->frame, UNIV_PAGE_SIZE);
+
+				ut_ad(buf_pool_from_block(block) == buf_pool);
+
+				buf_page_mutex_exit(block);
+				return (block); //cgmin
+	
+	}
+	return NULL; //cgmin cpu
+
+
 #endif
 	block = reinterpret_cast<buf_block_t*>(
 		UT_LIST_GET_FIRST(buf_pool->free));
@@ -1287,14 +1334,10 @@ buf_LRU_get_free_only(
 			UT_LIST_GET_FIRST(buf_pool->free));
 	}
 
-	//cgmin memset test only free
-	/*
-	if (block)
-	{
-	memset(block->frame+FIL_PAGE_OFFSET,0x12345678,4);
-	memset(block->frame+FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID,0x87654321,4);
-	}
-	*/
+/*
+	if (block == NULL)
+		printf("no free block\n");
+		*/
 	return(block);
 }
 
@@ -1485,8 +1528,11 @@ loop:
 	buf_pool_mutex_exit(buf_pool);
 
 	if (freed) {
+//		printf("s\n");
 		goto loop;
 	}
+//	printf("f\n");
+//	scanf("%d"); //cgmin cpu
 
 	if (n_iterations > 20
 	    && srv_buf_pool_old_size == srv_buf_pool_size) {
@@ -2041,7 +2087,7 @@ func_exit:
 		memcpy(b, bpage, sizeof *b);
 	}
 
-#if 1 
+#if 0 
 //	int i,cnt=0,/*fpgt,pil,*/m/*,cpu*/; //cgmin cpu
 	int i,cnt=0;	
 //	fpgt = fil_page_get_type( ( (buf_block_t*)bpage)->frame );
