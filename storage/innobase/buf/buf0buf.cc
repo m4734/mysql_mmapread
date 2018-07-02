@@ -4734,8 +4734,8 @@ got_block:
 		printf("%d\n",fix_block->page.prev_cpu);
 	}
 	*/
-	fix_block->page.prev_cpu = cpu+1;
-//	fix_block->page.prev_cpu = 0;	
+//	fix_block->page.prev_cpu = cpu+1;
+	fix_block->page.prev_cpu = 0;	
 return(fix_block);
 }
 
