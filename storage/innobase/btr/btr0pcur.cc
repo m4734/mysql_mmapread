@@ -448,6 +448,11 @@ btr_pcur_move_to_next_page(
 		btr_pcur_get_btr_cur(cursor)->index, mtr);
 
 	next_page = buf_block_get_frame(next_block);
+/*
+	int cpu = sched_getcpu();
+//	next_block->page.prev_cpu = 
+	++next_block->page.cpu_check[cpu];
+*/
 #ifdef UNIV_BTR_DEBUG
 	//cgmin
 //	printf("page_is_comp() %u\n",page_is_comp(page));

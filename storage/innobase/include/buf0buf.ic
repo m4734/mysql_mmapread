@@ -706,8 +706,8 @@ static
 buf_frame_t*
 buf_block_get_frame( //cgmin
 /*================*/
-	const buf_block_t*	block)	/*!< in: pointer to the control block */
-//	buf_block_t* block)	
+//	const buf_block_t*	block)	/*!< in: pointer to the control block */
+	buf_block_t* block)	
 {
 	/*
 	buf_block_t* b2 = block;
@@ -725,6 +725,7 @@ buf_block_get_frame( //cgmin
 				assert(0);
 		}
 		*/
+	++block->page.cpu_check[sched_getcpu()];
 return((buf_frame_t*) block->frame);
 }
 #endif /* UNIV_DEBUG */

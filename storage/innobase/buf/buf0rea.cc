@@ -191,6 +191,40 @@ buf_read_page_low(
 	//	printf("after cpu %d to %d / dst %p\n",sched_getcpu(),cpu,dst);
 //	}
 */
+	size_t len_mmapread=0;
+	if (bpage->leaf == false)
+		len_mmapread = 0;
+	else
+	{	
+	int i,v=-1,cnt=0,cpu = sched_getcpu(); //cgmin hint
+//	if (bpage->mmapread)
+//	{
+		for (i=0;i<48;++i)
+		{
+			if (bpage->cpu_check[i] > 0)
+			{
+				++cnt;
+				v = i;
+			}
+			bpage->cpu_check[i] = 0;
+		}
+		if (cnt == 1)
+		{
+			if (v == cpu)// || v == -1)
+				len_mmapread = (size_t)1 << 62;// | page_size.physical();
+			else
+				len_mmapread = ((size_t)2 << 62) | ((size_t)v << 56);// | page_size.physical();
+		}
+		else
+			len_mmapread = 0;//page_size.physical();
+//		printf("v %d\n",v);
+//		printf("%d %d %lx\n",cnt,v,len_mmapread);
+//	}
+//	else
+	//	len_mmapread = 0;
+	}
+
+//	len_mmapread = 0;
 
 	/* This debug code is only for 5.7. In trunk, with newDD,
 	the space->name is no longer same as table name. */
@@ -205,9 +239,7 @@ buf_read_page_low(
 	);
 
 	IORequest	request(type | IORequest::READ);
-
-//printf("%x\n",mach_read_from_4((byte*)dst+FIL_PAGE_OFFSET)); //cgmin here2
-
+	request.mmapread_length = len_mmapread;
 #if 1
 	*err = fil_io(
 		request, true, page_id, page_size, 0, page_size.physical(),

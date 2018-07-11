@@ -187,8 +187,16 @@ mach_read_from_4(
 	const byte*	b)	/*!< in: pointer to four bytes */
 {
 	ut_ad(b);
-//	if (sched_getcpu() != (intptr_t)b/UNIV_PAGE_SIZE%24) //cgmin
-//		printf("m4\n");
+	/*
+	if (sched_getcpu() != (intptr_t)b/UNIV_PAGE_SIZE%24) //cgmin
+	{
+		printf("m4\n");
+		int a;
+		scanf("%d",&a);
+		if (a < 0)
+			assert(0);
+	}
+*/
 	return( ((ulint)(b[0]) << 24)
 		| ((ulint)(b[1]) << 16)
 		| ((ulint)(b[2]) << 8)

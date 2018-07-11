@@ -2176,11 +2176,35 @@ SyncFileIO::execute(const IORequest& request)
 	ssize_t	n_bytes;
 
 	if (request.is_read()) {
-		n_bytes = pread(m_fh, m_buf, m_n, m_offset);
+//		printf("f %lx %lx\n",(size_t)m_n, request.mmapread_length);
+	/*
+		printf("f %lx %lx\n",(size_t)m_n, request.mmapread_length);
+//		scanf("%d");
+		if (request.mmapread_length != 0)
+		{
+			if (request.mmapread_length < ((size_t)1 << 56))
+			{
+				printf("eifeliens\n");
+//				scanf("%d");
+			}
+//			scanf("%d");
+		}
+		*/
+//		posix_fadvise(m_fh,m_offset,m_n,8);//POSIX_FADV_MMAPREAD);
+//		posix_fadvise(m_fh,m_offset,m_n,9);//POSIX_FADV_NOMMAPREAD);
+//		request.mmapread_length = 0;
+//		n_bytes = pread(m_fh, m_buf, (size_t)m_n | ((size_t)0 << 62), m_offset); //cgmin hint
+//		printf("f %lx %lx\n",(size_t)m_n, request.mmapread_length);
+
+		n_bytes = pread(m_fh, m_buf, (size_t)m_n | request.mmapread_length, m_offset); //cgmin hint
+		
+//		n_bytes = pread(m_fh, m_buf, m_n, m_offset); //cgmin hint
 	} else {
 		ut_ad(request.is_write());
 		n_bytes = pwrite(m_fh, m_buf, m_n, m_offset);
 	}
+
+//	request.mmapread_length = 0;
 
 	return(n_bytes);
 }

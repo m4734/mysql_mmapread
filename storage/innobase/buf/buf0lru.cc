@@ -2089,6 +2089,29 @@ func_exit:
 		memcpy(b, bpage, sizeof *b);
 	}
 
+int i,cnt=0,offset,size,fd; //cgmin hint
+//size = UNIV_PAGE_SIZE;
+//size = bpage->page_id.space();
+fd = bpage->fd;
+size = bpage->size.physical();
+offset = bpage->id.page_no() << UNIV_PAGE_SIZE_SHIFT; 
+if (bpage->leaf == 0)
+	posix_fadvise(fd,offset,size,9);//POSIX_FADV_NOMMAPREAD);
+else
+{
+for (i=0;i<48;++i)
+{
+	if (bpage->cpu_check[i])
+		++cnt;
+}
+if (cnt <= 1)
+	posix_fadvise(fd,offset,size,8);//POSIX_FADV_MMAPREAD);
+else
+	posix_fadvise(fd,offset,size,9);//POSIX_FADV_NOMMAPREAD);
+	}
+//printf("%d %d\n",offset,size);
+//scanf("%d");
+
 #if 0 
 //	int i,cnt=0,/*fpgt,pil,*/m/*,cpu*/; //cgmin cpu
 	int i,cnt=0;	
@@ -2123,11 +2146,7 @@ func_exit:
 	for (i=0;i<48;++i)
 		bpage->cpu_check[i] = 0;
 #endif
-	/*
-	int i;
-	for (i=0;i<48;++i)
-		bpage->cpu_check[i] = 0;
-*/
+
 	ut_ad(buf_pool_mutex_own(buf_pool));
 	ut_ad(buf_page_in_file(bpage));
 	ut_ad(bpage->in_LRU_list);

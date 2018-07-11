@@ -5635,20 +5635,6 @@ fil_io(
 			node = UT_LIST_GET_NEXT(chain, node);
 		}
 	}
-	/*
-	if (message != NULL) //cgmin cpu
-	{
-		if (strcmp(node->name,"./ycsb/usertable.ibd") == 0) // cgmin
-			((buf_page_t*)message)->mmapread = true;
-		else
-		{
-	//		printf("%s\n",node->name);
-			((buf_page_t*)message)->mmapread = false;
-		}
-	}
-	*/
-//	else
-//		((buf_page_t*)message)->mmapread = false;
 
 	/* Open file if closed */
 	if (!fil_node_prepare_for_io(node, fil_system, space)) {
@@ -5732,6 +5718,30 @@ fil_io(
 		ut_a(node->size - cur_page_no
 		     >= (len + (page_size.physical() - 1))
 		     / page_size.physical());
+	}
+	/*
+		if (strcmp(node->name,"./ycsb/usertable.ibd") != 0) // cgmin
+		{
+			printf("x\n");
+			req_type.mmapread_length = 0;	
+		}
+	*/
+	
+	if (message != NULL) //cgmin hint
+	{
+		
+		if (strcmp(node->name,"./ycsb/usertable.ibd") != 0) // cgmin
+		{
+			req_type.mmapread_length = 0;	
+//			((buf_page_t*)message)->mmapread = false;
+		}
+		else
+		{
+	//		printf("%s\n",node->name);
+//			((buf_page_t*)message)->mmapread = true;
+		}
+		
+		((buf_page_t*)message)->fd = node->handle.m_file;
 	}
 
 	/* Do AIO */
