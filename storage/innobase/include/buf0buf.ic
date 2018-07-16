@@ -706,14 +706,14 @@ static
 buf_frame_t*
 buf_block_get_frame( //cgmin
 /*================*/
-//	const buf_block_t*	block)	/*!< in: pointer to the control block */
-	buf_block_t* block)	
+	const buf_block_t*	block)	/*!< in: pointer to the control block */
+//	buf_block_t* block)	
 {
 	/*
 	buf_block_t* b2 = block;
 	if (b2->page.cpu_check[sched_getcpu()] == 0)
 		printf("x\n");
-		*/
+	*/	
 //++block->page.cpu_check[sched_getcpu()];
 /*
 		if (sched_getcpu() != (intptr_t)block->frame/UNIV_PAGE_SIZE%24)
@@ -725,7 +725,7 @@ buf_block_get_frame( //cgmin
 				assert(0);
 		}
 		*/
-	++block->page.cpu_check[sched_getcpu()];
+//	++block->page.cpu_check[sched_getcpu()];
 return((buf_frame_t*) block->frame);
 }
 #endif /* UNIV_DEBUG */

@@ -254,7 +254,7 @@ rtr_get_parent_cursor(
 {
 	node_visit_t*   found_node = rtr_get_parent_node(
 					btr_cur, level, is_insert);
-
+//++found_node->cursor->btr_cur.page_cur.block->page.cpu_check[sched_getcpu()]; cgmin cpu
 	return((found_node) ? found_node->cursor : NULL);
 }
 

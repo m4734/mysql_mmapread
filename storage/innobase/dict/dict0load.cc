@@ -2855,7 +2855,15 @@ dict_load_table(
 	DBUG_PRINT("dict_load_table", ("loading table: '%s'", name));
 
 	ut_ad(mutex_own(&dict_sys->mutex));
-
+/*
+	int cpu; //cgmin cpu
+	cpu_set_t set,set2;
+	cpu = sched_getcpu();
+	CPU_ZERO(&set);
+	CPU_SET(cpu,&set);
+	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
+	sched_setaffinity(0,sizeof(cpu_set_t),&set);
+*/
 	table_name.m_name = const_cast<char*>(name);
 
 	result = dict_table_check_if_in_cache_low(name);
@@ -2878,6 +2886,8 @@ dict_load_table(
 			fk_list.pop_front();
 		}
 	}
+
+//	sched_setaffinity(0,sizeof(cpu_set_t),&set2);
 
 	DBUG_RETURN(result);
 }

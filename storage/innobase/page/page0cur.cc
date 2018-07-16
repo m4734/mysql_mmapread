@@ -444,8 +444,6 @@ page_cur_search_with_match(
 			      || dict_index_is_spatial(index));
 #endif /* UNIV_DEBUG */
 	page = buf_block_get_frame(block);
-//	if (mach_read_from_4(page+FIL_PAGE_OFFSET) == 0xffffffff)	//cgmin
-//			printf("crr\n");
 #ifdef UNIV_ZIP_DEBUG
 	ut_a(!page_zip || page_zip_validate(page_zip, page, index));
 #endif /* UNIV_ZIP_DEBUG */

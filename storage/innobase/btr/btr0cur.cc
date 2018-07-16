@@ -1572,6 +1572,10 @@ need_opposite_intention:
 						rtr_get_parent_cursor(
 							cursor, height + 1,
 							true);
+					/*
+					if (r_cursor != NULL)
+						++btr_pcur_get_block(r_cursor)->page.cpu_check[sched_getcpu()]; // cgmin cpu ???
+*/
 					/* If it is insertion, there should
 					be only one parent for each level
 					traverse */
@@ -1960,6 +1964,8 @@ func_exit:
 		/* remember that we will need to adjust parent MBR */
 		cursor->rtr_info->mbr_adj = true;
 	}
+
+//	++cursor->page_cur.block->page.cpu_check[sched_getcpu()]; // cgmin cpu ???
 
 	DBUG_VOID_RETURN;
 }

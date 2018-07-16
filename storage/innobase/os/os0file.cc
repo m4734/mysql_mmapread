@@ -2196,9 +2196,9 @@ SyncFileIO::execute(const IORequest& request)
 //		n_bytes = pread(m_fh, m_buf, (size_t)m_n | ((size_t)0 << 62), m_offset); //cgmin hint
 //		printf("f %lx %lx\n",(size_t)m_n, request.mmapread_length);
 
-		n_bytes = pread(m_fh, m_buf, (size_t)m_n | request.mmapread_length, m_offset); //cgmin hint
+//		n_bytes = pread(m_fh, m_buf, (size_t)m_n | request.mmapread_length, m_offset); //cgmin hint
 		
-//		n_bytes = pread(m_fh, m_buf, m_n, m_offset); //cgmin hint
+		n_bytes = pread(m_fh, m_buf, m_n, m_offset); //cgmin hint
 	} else {
 		ut_ad(request.is_write());
 		n_bytes = pwrite(m_fh, m_buf, m_n, m_offset);

@@ -2756,6 +2756,14 @@ int handler::ha_open(TABLE *table_arg, const char *name, int mode,
   DBUG_PRINT("info", ("old m_lock_type: %d F_UNLCK %d", m_lock_type, F_UNLCK));
   DBUG_ASSERT(alloc_root_inited(&table->mem_root));
 
+	int cpu; //cgmin cpu
+	cpu_set_t set,set2;
+	cpu = sched_getcpu();
+	CPU_ZERO(&set);
+	CPU_SET(cpu,&set);
+	sched_getaffinity(0,sizeof(cpu_set_t),&set2);
+	sched_setaffinity(0,sizeof(cpu_set_t),&set);
+
   if ((error=open(name,mode,test_if_locked)))
   {
     if ((error == EACCES || error == EROFS) && mode == O_RDWR &&
@@ -2802,6 +2810,9 @@ int handler::ha_open(TABLE *table_arg, const char *name, int mode,
       dup_ref=ref+ALIGN_SIZE(ref_length);
     cached_table_flags= table_flags();
   }
+
+	sched_setaffinity(0,sizeof(cpu_set_t),&set2);
+
   DBUG_RETURN(error);
 }
 

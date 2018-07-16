@@ -1229,8 +1229,8 @@ static
 buf_frame_t*
 buf_block_get_frame(
 /*================*/
-//	const buf_block_t* block);	/*!< in: pointer to the control block */
-	buf_block_t* block);	
+	const buf_block_t* block);	/*!< in: pointer to the control block */
+//	buf_block_t* block);	
 #endif /* UNIV_DEBUG */
 /*********************************************************************//**
 Gets the compressed page descriptor corresponding to an uncompressed page

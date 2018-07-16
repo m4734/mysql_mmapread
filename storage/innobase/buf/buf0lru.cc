@@ -1037,7 +1037,7 @@ printf("c8\n");
 
 	return(freed);
 }
-
+#if 0
 /******************************************************************//**
 Try to free a clean page from the common LRU list.
 @return true if freed */
@@ -1135,7 +1135,72 @@ buf_LRU_free_from_common_LRU_list(
 	}
 	return(freed);
 }
+#else
+/******************************************************************//**
+Try to free a clean page from the common LRU list.
+@return true if freed */
+static
+bool
+buf_LRU_free_from_common_LRU_list(
+/*==============================*/
+	buf_pool_t*	buf_pool,	/*!< in: buffer pool instance */
+	bool		scan_all)	/*!< in: scan whole LRU list
+					if true, otherwise scan only
+					up to BUF_LRU_SEARCH_SCAN_THRESHOLD */
+{
+	ut_ad(buf_pool_mutex_own(buf_pool));
 
+	ulint		scanned = 0;
+	bool		freed = false;
+
+	for (buf_page_t* bpage = buf_pool->lru_scan_itr.start();
+	     bpage != NULL
+	     && !freed
+	     && (scan_all || scanned < BUF_LRU_SEARCH_SCAN_THRESHOLD);
+	     ++scanned, bpage = buf_pool->lru_scan_itr.get()) {
+
+		buf_page_t*	prev = UT_LIST_GET_PREV(LRU, bpage);
+		BPageMutex*	mutex = buf_page_get_mutex(bpage);
+
+		buf_pool->lru_scan_itr.set(prev);
+
+		mutex_enter(mutex);
+
+		ut_ad(buf_page_in_file(bpage));
+		ut_ad(bpage->in_LRU_list);
+
+		unsigned	accessed = buf_page_is_accessed(bpage);
+
+			if (buf_flush_ready_for_replace(bpage))
+			{
+				mutex_exit(mutex);
+				freed = buf_LRU_free_page(bpage, true);
+			}
+			else
+				mutex_exit(mutex);
+
+		if (freed && !accessed) {
+			/* Keep track of pages that are evicted without
+			ever being accessed. This gives us a measure of
+			the effectiveness of readahead */
+			++buf_pool->stat.n_ra_pages_evicted;
+		}
+
+		ut_ad(buf_pool_mutex_own(buf_pool));
+		ut_ad(!mutex_own(mutex));
+	}
+
+	if (scanned) {
+		MONITOR_INC_VALUE_CUMULATIVE(
+			MONITOR_LRU_SEARCH_SCANNED,
+			MONITOR_LRU_SEARCH_SCANNED_NUM_CALL,
+			MONITOR_LRU_SEARCH_SCANNED_PER_CALL,
+			scanned);
+	}
+	return(freed);
+}
+
+#endif
 /******************************************************************//**
 Try to free a replaceable block.
 @return true if found and freed */
@@ -1187,6 +1252,7 @@ buf_LRU_buf_pool_running_out(void)
 	return(ret);
 }
 
+#if 0
 /******************************************************************//**
 Returns a free block from the buf_pool.  The block is taken off the
 free list.  If it is empty, returns NULL.
@@ -1342,6 +1408,70 @@ buf_LRU_get_free_only(
 		*/
 	return(block);
 }
+#else
+/******************************************************************//**
+Returns a free block from the buf_pool.  The block is taken off the
+free list.  If it is empty, returns NULL.
+@return a free control block, or NULL if the buf_block->free list is empty */
+buf_block_t*
+buf_LRU_get_free_only(
+/*==================*/
+	buf_pool_t*	buf_pool)
+{
+	buf_block_t*	block,*be,*keep;
+
+	ut_ad(buf_pool_mutex_own(buf_pool));
+
+	block = reinterpret_cast<buf_block_t*>(
+		UT_LIST_GET_FIRST(buf_pool->free));
+
+	while (block != NULL) {
+
+		ut_ad(block->page.in_free_list);
+		ut_d(block->page.in_free_list = FALSE);
+		ut_ad(!block->page.in_flush_list);
+		ut_ad(!block->page.in_LRU_list);
+		ut_a(!buf_page_in_file(&block->page));
+		UT_LIST_REMOVE(buf_pool->free, &block->page);
+
+		if (buf_pool->curr_size >= buf_pool->old_size
+		    || UT_LIST_GET_LEN(buf_pool->withdraw)
+			>= buf_pool->withdraw_target
+		    || !buf_block_will_withdrawn(buf_pool, block)) {
+			/* found valid free block */
+			buf_page_mutex_enter(block);
+			/* No adaptive hash index entries may point to
+			a free block. */
+			assert_block_ahi_empty(block);
+
+			buf_block_set_state(block, BUF_BLOCK_READY_FOR_USE);
+			UNIV_MEM_ALLOC(block->frame, UNIV_PAGE_SIZE);
+
+			ut_ad(buf_pool_from_block(block) == buf_pool);
+
+			buf_page_mutex_exit(block);
+			break;
+		}
+
+		/* This should be withdrawn */
+		UT_LIST_ADD_LAST(
+			buf_pool->withdraw,
+			&block->page);
+		ut_d(block->in_withdraw_list = TRUE);
+
+		block = reinterpret_cast<buf_block_t*>(
+			UT_LIST_GET_FIRST(buf_pool->free));
+	}
+
+/*
+	if (block == NULL)
+		printf("no free block\n");
+		*/
+	return(block);
+}
+
+#endif
+
 
 /******************************************************************//**
 Checks how much of buf_pool is occupied by non-data objects like
@@ -2088,7 +2218,7 @@ func_exit:
 		ut_a(b);
 		memcpy(b, bpage, sizeof *b);
 	}
-
+/*
 int i,cnt=0,offset,size,fd; //cgmin hint
 //size = UNIV_PAGE_SIZE;
 //size = bpage->page_id.space();
@@ -2097,6 +2227,10 @@ size = bpage->size.physical();
 offset = bpage->id.page_no() << UNIV_PAGE_SIZE_SHIFT; 
 if (bpage->leaf == 0)
 	posix_fadvise(fd,offset,size,9);//POSIX_FADV_NOMMAPREAD);
+else
+	posix_fadvise(fd,offset,size,8);
+	*/
+/*
 else
 {
 for (i=0;i<48;++i)
@@ -2109,6 +2243,7 @@ if (cnt <= 1)
 else
 	posix_fadvise(fd,offset,size,9);//POSIX_FADV_NOMMAPREAD);
 	}
+	*/
 //printf("%d %d\n",offset,size);
 //scanf("%d");
 

@@ -564,6 +564,8 @@ buf_buddy_relocate(
 	ut_ad(i >= buf_buddy_get_slot(UNIV_ZIP_SIZE_MIN));
 	UNIV_MEM_ASSERT_W(dst, size);
 
+	printf("buf_buddy_relocate\n"); // cgmin test not happen
+
 	space	= mach_read_from_4((const byte*) src
 				   + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID);
 	offset	= mach_read_from_4((const byte*) src

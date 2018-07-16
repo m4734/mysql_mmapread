@@ -316,6 +316,9 @@ btr_pcur_restore_position_func(
 						   index));
 				mem_heap_free(heap);
 #endif /* UNIV_DEBUG */
+
+//				++btr_pcur_get_block(cursor)->page.cpu_check[sched_getcpu()]; //cgmin cpu
+
 				return(TRUE);
 			}
 			/* This is the same record as stored,
@@ -448,11 +451,7 @@ btr_pcur_move_to_next_page(
 		btr_pcur_get_btr_cur(cursor)->index, mtr);
 
 	next_page = buf_block_get_frame(next_block);
-/*
-	int cpu = sched_getcpu();
-//	next_block->page.prev_cpu = 
-	++next_block->page.cpu_check[cpu];
-*/
+
 #ifdef UNIV_BTR_DEBUG
 	//cgmin
 //	printf("page_is_comp() %u\n",page_is_comp(page));
@@ -466,6 +465,7 @@ btr_pcur_move_to_next_page(
 
 	printf("ppp %p\n",next_page);
 	*/
+	/*
 if		(btr_page_get_prev(next_page, mtr) != btr_pcur_get_block(cursor)->page.id.page_no())
 {
 //	memset(next_page+FIL_PAGE_OFFSET,0,4);
@@ -475,6 +475,7 @@ if		(btr_page_get_prev(next_page, mtr) != btr_pcur_get_block(cursor)->page.id.pa
 	printf("e btr_page_no FIL_PAGE_ARCH %u\n",(ulint)mach_read_from_4(next_page+FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID));
 
 }
+*/
 ut_a(btr_page_get_prev(next_page, mtr)
 	     == btr_pcur_get_block(cursor)->page.id.page_no());
 #endif /* UNIV_BTR_DEBUG */
@@ -592,7 +593,7 @@ btr_pcur_move_to_prev(
 
 			return(FALSE);
 		}
-
+printf("btr_pcur_move_to_prev\n");//cgmin test not gonna happen
 		btr_pcur_move_backward_from_page(cursor, mtr);
 
 		return(TRUE);

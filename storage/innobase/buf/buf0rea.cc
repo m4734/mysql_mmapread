@@ -191,6 +191,7 @@ buf_read_page_low(
 	//	printf("after cpu %d to %d / dst %p\n",sched_getcpu(),cpu,dst);
 //	}
 */
+	/*
 	size_t len_mmapread=0;
 	if (bpage->leaf == false)
 		len_mmapread = 0;
@@ -225,7 +226,7 @@ buf_read_page_low(
 	}
 
 //	len_mmapread = 0;
-
+*/
 	/* This debug code is only for 5.7. In trunk, with newDD,
 	the space->name is no longer same as table name. */
 	DBUG_EXECUTE_IF("innodb_invalid_read_after_truncate",
@@ -239,7 +240,7 @@ buf_read_page_low(
 	);
 
 	IORequest	request(type | IORequest::READ);
-	request.mmapread_length = len_mmapread;
+//	request.mmapread_length = len_mmapread;
 #if 1
 	*err = fil_io(
 		request, true, page_id, page_size, 0, page_size.physical(),
