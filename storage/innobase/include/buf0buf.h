@@ -1224,13 +1224,15 @@ buf_block_get_frame(
 	const buf_block_t*	block)	/*!< in: pointer to the control block */
 	MY_ATTRIBUTE((warn_unused_result));
 #else /* UNIV_DEBUG */
-//# define buf_block_get_frame(block) (block)->frame
+# define buf_block_get_frame(block) (block)->frame
+#if 0
 static
 buf_frame_t*
 buf_block_get_frame(
 /*================*/
 	const buf_block_t* block);	/*!< in: pointer to the control block */
 //	buf_block_t* block);	
+#endif
 #endif /* UNIV_DEBUG */
 /*********************************************************************//**
 Gets the compressed page descriptor corresponding to an uncompressed page
@@ -1694,11 +1696,15 @@ public:
 					or buf_block_t::mutex. */
 # endif /* UNIV_DEBUG */
 #endif /* !UNIV_HOTBACKUP */
+/*	
 	int cpu_check[48];//cgmin cpu
 	bool mmapread;
 	int prev_cpu; //cgmin cpu
+	*/
 	int fd;
 	bool leaf;
+	
+
 };
 
 /** The buffer control block structure */
@@ -2276,7 +2282,7 @@ struct buf_pool_t{
 # error "BUF_BUDDY_LOW > UNIV_ZIP_SIZE_MIN"
 #endif
 	/* @} */
-	int cpu; //cgmin
+//	int cpu; //cgmin
 };
 
 /** Print the given buf_pool_t object.

@@ -5729,7 +5729,7 @@ fil_io(
 	
 	if (message != NULL) //cgmin hint
 	{
-		
+/*		
 		if (strcmp(node->name,"./ycsb/usertable.ibd") != 0) // cgmin
 		{
 			req_type.mmapread_length = 0;	
@@ -5740,7 +5740,7 @@ fil_io(
 	//		printf("%s\n",node->name);
 //			((buf_page_t*)message)->mmapread = true;
 		}
-		
+*/		
 		((buf_page_t*)message)->fd = node->handle.m_file;
 	}
 

@@ -66,7 +66,7 @@ struct btr_latch_leaves_t {
 #include "ha0ha.h"
 
 #define BTR_CUR_ADAPT
-// cgmin
+// cgmin check?
 #define BTR_CUR_HASH_ADAPT
 
 #ifdef UNIV_DEBUG

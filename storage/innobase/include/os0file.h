@@ -564,7 +564,7 @@ public:
 		m_type(READ),
 		m_compression(),
 		m_encryption()
-		,mmapread_length(0)
+//		,mmapread_length(0)
 	{
 		/* No op */
 	}
@@ -578,7 +578,7 @@ public:
 		m_type(static_cast<uint16_t>(type)),
 		m_compression(),
 		m_encryption()
-		,mmapread_length(0)
+//		,mmapread_length(0)
 	{
 		if (is_log()) {
 			disable_compression();
@@ -846,7 +846,7 @@ private:
 	/** Encryption algorithm */
 	Encryption		m_encryption;
 public:
-	size_t mmapread_length;
+//	size_t mmapread_length;
 };
 
 /* @} */

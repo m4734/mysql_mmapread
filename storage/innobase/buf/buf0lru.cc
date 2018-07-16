@@ -2218,18 +2218,18 @@ func_exit:
 		ut_a(b);
 		memcpy(b, bpage, sizeof *b);
 	}
-/*
+
 int i,cnt=0,offset,size,fd; //cgmin hint
 //size = UNIV_PAGE_SIZE;
 //size = bpage->page_id.space();
 fd = bpage->fd;
 size = bpage->size.physical();
 offset = bpage->id.page_no() << UNIV_PAGE_SIZE_SHIFT; 
-if (bpage->leaf == 0)
+if (false &&  bpage->leaf == 0)
 	posix_fadvise(fd,offset,size,9);//POSIX_FADV_NOMMAPREAD);
 else
 	posix_fadvise(fd,offset,size,8);
-	*/
+	
 /*
 else
 {
@@ -2510,9 +2510,10 @@ buf_LRU_block_free_non_file_page(
 #else
 	/* Wipe page_no and space_id */
 //	printf("free non file page happend\n"); //cgmin
-	
-//	memset(block->frame + FIL_PAGE_OFFSET, 0xfe, 4);
-//	memset(block->frame + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID, 0xfe, 4);
+	/*
+	memset(block->frame + FIL_PAGE_OFFSET, 0xfe, 4); //cgmin memset
+	memset(block->frame + FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID, 0xfe, 4); //cgmin memset
+	*/
 //printf("read_page_no %u read_space_id %u\n",mach_read_from_4(block->frame+FIL_PAGE_OFFSET),mach_read_from_4(block->frame+FIL_PAGE_ARCH_LOG_NO_OR_SPACE_ID));
 #endif /* UNIV_DEBUG */
 	data = block->page.zip.data;
@@ -2726,7 +2727,8 @@ buf_LRU_block_remove_hashed(
 
 	case BUF_BLOCK_FILE_PAGE:
 		//printf("remove hash happend\n"); //cgmin
-/*	
+//cgmin memset	
+/*
 		memset(((buf_block_t*) bpage)->frame
 		       + FIL_PAGE_OFFSET, 0xff, 4);
 		memset(((buf_block_t*) bpage)->frame

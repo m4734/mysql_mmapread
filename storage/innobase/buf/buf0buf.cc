@@ -1510,7 +1510,7 @@ buf_chunk_init(
 
 	chunk->mem = buf_pool->allocator.allocate_large(mem_size,
 							&chunk->mem_pfx);
-	memset(chunk->mem,0,mem_size); //cgmin init frame we need it // why? // alloc now
+	memset(chunk->mem,0,mem_size); //cgmin init frame we need it // why? // alloc now cgmin memset
 
 	if (UNIV_UNLIKELY(chunk->mem == NULL)) {
 
@@ -4115,10 +4115,12 @@ buf_page_get_gen(
 	hash_lock = buf_page_hash_lock_get(buf_pool, page_id);
 
 	//cgmin cpu
+	/*
 	int cpu;
 	cpu_set_t set;
 	cpu = sched_getcpu();
 	buf_pool->cpu = cpu;
+	*/
 	/*
 	cpu_set_t set;
 	CPU_ZERO(&set);
@@ -4735,14 +4737,14 @@ got_block:
 	}
 */	
 //	fix_block->page.prev_cpu = cpu+1;
-	fix_block->page.prev_cpu = 0;	
+//	fix_block->page.prev_cpu = 0;	
 //	++fix_block->page.cpu_check[cpu];
-	/*
+	
 	if (page_is_leaf(buf_block_get_frame(fix_block)))
 		fix_block->page.leaf = true;
 	else
 		fix_block->page.leaf = false;
-	*/
+	
 return(fix_block);
 }
 

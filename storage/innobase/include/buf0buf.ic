@@ -701,6 +701,7 @@ buf_block_get_frame(
 ok:
 	return((buf_frame_t*) block->frame);
 }
+#if 1
 #else
 static
 buf_frame_t*
@@ -728,6 +729,7 @@ buf_block_get_frame( //cgmin
 //	++block->page.cpu_check[sched_getcpu()];
 return((buf_frame_t*) block->frame);
 }
+#endif
 #endif /* UNIV_DEBUG */
 
 /***********************************************************************
